@@ -1,3 +1,14 @@
-from django.shortcuts import render
+from rest_framework.generics import ListAPIView
 
-# Create your views here.
+from .models import CurrentPrice
+from .serializers import CurrentPriceSerializer
+
+
+class CurrentPriceListAPIView(ListAPIView):
+
+    queryset = CurrentPrice.objects.select_related(
+        "product",
+        "store",
+    )
+
+    serializer_class = CurrentPriceSerializer

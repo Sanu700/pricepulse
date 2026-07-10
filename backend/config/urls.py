@@ -42,4 +42,12 @@ urlpatterns = [
     "api/v1/accounts/refresh/",
     TokenRefreshView.as_view(),
     ),
+    path(
+    "api/v1/",
+    include("apps.catalog.urls"),
+     ),
+    path(
+    "api/v1/",
+    include("apps.pricing.urls"),
+    ),
 ]
