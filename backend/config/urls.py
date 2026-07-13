@@ -50,4 +50,5 @@ urlpatterns = [
     "api/v1/",
     include("apps.pricing.urls"),
     ),
+    path("health/", include("common.urls")),
 ]
