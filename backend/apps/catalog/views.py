@@ -29,4 +29,17 @@ class ProductPriceComparisonAPIView(ListAPIView):
         "current_prices__store"
     )
     serializer_class = ProductPriceComparisonSerializer
+
+
+class ProductDetailAPIView(RetrieveAPIView):
+    """Retrieve single product details.
+
+    Uses the existing `ProductSerializer` and queryset configuration
+    consistent with `ProductListAPIView`. Returns 404 when not found.
+    """
+    queryset = Product.objects.select_related(
+        "brand",
+        "category",
+    )
+    serializer_class = ProductSerializer
     
