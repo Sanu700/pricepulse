@@ -12,3 +12,16 @@ class CurrentPriceListAPIView(ListAPIView):
     )
 
     serializer_class = CurrentPriceSerializer
+
+class ProductCurrentPricesAPIView(ListAPIView):
+    serializer_class = CurrentPriceSerializer
+
+    def get_queryset(self):
+        product_id = self.kwargs["product_id"]
+
+        return (
+            CurrentPrice.objects
+            .filter(product_id=product_id)
+            .select_related("store")
+            .order_by("price")
+        )

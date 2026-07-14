@@ -1,13 +1,7 @@
 services:
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-
-    container_name: pricepulse-backend
-
-    command: python manage.py runserver 0.0.0.0:8000
+    build: ./backend
 
     ports:
       - "8000:8000"
@@ -17,31 +11,62 @@ services:
 
     depends_on:
       - redis
+      - postgres
 
-    environment:
-      - PYTHONUNBUFFERED=1
+    command: python manage.py runserver 0.0.0.0:8000
 
   redis:
     image: redis:7-alpine
 
-    container_name: pricepulse-redis
-
     ports:
-      - "6379:6379"
+      - "6380:6379"
 
-    restart: unless-stopped
+  postgres:
+   image: postgres:17
+
+   container_name: pricepulse-postgres
+
+   restart: always
+
+   environment:
+     POSTGRES_DB: pricepulse
+     POSTGRES_USER: postgres
+     POSTGRES_PASSWORD: postgres
+
+   ports:
+     - "5432:5432"
+
+   volumes:
+     - postgres_data:/var/lib/postgresql/data
 
   celery:
-    build:
+      build:
+        context: ./backend
+        dockerfile: Dockerfile
+
+      container_name: pricepulse-celery
+
+      command: celery -A config worker --loglevel=info
+
+      volumes:
+       - ./backend:/app
+
+      depends_on:
+      - redis
+
+  celery-beat:
+     build:
       context: ./backend
       dockerfile: Dockerfile
 
-    container_name: pricepulse-celery
+     command: celery -A config beat --loglevel=info
 
-    command: celery -A config worker --loglevel=info
-
-    volumes:
+     volumes:
       - ./backend:/app
 
-    depends_on:
+     depends_on:
       - redis
+      - celery
+  
+volumes:
+    postgres_data:

@@ -31,8 +31,6 @@ python-crontab==3.3.0
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.2
 PyYAML==6.0.3
-pytest
-pytest-django
 redis==8.0.1
 referencing==0.37.0
 rpds-py==2026.6.3
