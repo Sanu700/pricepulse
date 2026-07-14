@@ -14,3 +14,8 @@ export async function getProductPrices(id) {
     const response = await api.get(`/products/${id}/prices/`);
     return response.data;
 }
+
+export async function getProductHistory(id) {
+    const response = await api.get(`/products/${id}/history/`);
+    return response.data;
+}

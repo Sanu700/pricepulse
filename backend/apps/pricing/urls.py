@@ -1,7 +1,10 @@
 from django.urls import path
 
-from .views import CurrentPriceListAPIView, ProductCurrentPricesAPIView
-
+from .views import (
+    CurrentPriceListAPIView,
+    ProductCurrentPricesAPIView,
+    ProductPriceHistoryAPIView,
+)
 urlpatterns = [
     path(
         "prices/",
@@ -13,4 +16,9 @@ urlpatterns = [
         ProductCurrentPricesAPIView.as_view(),
         name="product-price-list",
     ),
+    path(
+    "products/<int:product_id>/history/",
+    ProductPriceHistoryAPIView.as_view(),
+    name="product-history",
+     ),
 ]

@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 
 import MainLayout from "../layouts/MainLayout";
-import AuthLayout from "../layouts/AuthLayout";
+import ProtectedRoute from "../components/auth/ProtectedRoute";
 
 import Dashboard from "../pages/dashboard/Dashboard";
 import Login from "../pages/auth/Login";
@@ -17,31 +17,33 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Dashboard />,
+        element: (
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "products",
-        element: <Products />,
+        element: (
+          <ProtectedRoute>
+            <Products />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "products/:id",
-        element: <ProductDetails />,
-      },
-      {
-        path: "profile",
-        element: <Profile />,
+        element: (
+          <ProtectedRoute>
+            <ProductDetails />
+          </ProtectedRoute>
+        ),
       },
     ],
   },
   {
-    path: "/auth",
-    element: <AuthLayout />,
-    children: [
-      {
-        path: "login",
-        element: <Login />,
-      },
-    ],
+    path: "/login",
+    element: <Login />,
   },
   {
     path: "*",

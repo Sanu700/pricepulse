@@ -4,7 +4,8 @@ from .models import CurrentPrice, PriceHistory, Store
 class CurrentPriceSerializer(serializers.ModelSerializer):
     product = serializers.CharField(source='product.name', read_only=True)
     store = serializers.CharField(source='store.name', read_only=True)
-    
+
+  
     class Meta:
         model = CurrentPrice
         fields = [
@@ -14,4 +15,13 @@ class CurrentPriceSerializer(serializers.ModelSerializer):
             'price',
             'in_stock',
             'last_updated',
+        ]
+
+class PriceHistorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = PriceHistory
+        fields = [
+            "price",
+            "recorded_at",
         ]

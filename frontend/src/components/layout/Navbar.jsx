@@ -1,7 +1,10 @@
-import { Search, User, ShoppingBag } from "lucide-react";
+import { Search, ShoppingBag } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 
 function Navbar() {
+  const { logout, isAuthenticated } = useAuth();
+
   return (
     <nav className="flex items-center justify-between border-b bg-white px-8 py-4 shadow-sm">
       <Link to="/" className="text-2xl font-bold text-purple-600">
@@ -26,9 +29,14 @@ function Navbar() {
           Products
         </Link>
 
-        <button>
-          <User size={22} />
-        </button>
+        {isAuthenticated && (
+          <button
+            onClick={logout}
+            className="rounded-lg bg-red-500 px-4 py-2 text-white hover:bg-red-600"
+          >
+            Logout
+          </button>
+        )}
       </div>
     </nav>
   );
