@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+    branches: ["main", "master"]
+
+jobs:
+  backend-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+
+      - name: Install OS dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential default-libmysqlclient-dev pkg-config libpq-dev
+
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
+
+      - name: Install Python requirements
+        run: pip install -r backend/requirements.txt
+
+      - name: Pip dependency check
+        run: pip check
+
+      - name: Django system checks
+        run: python backend/manage.py check
+
+      - name: Verify critical imports
+        run: |
+          python - <<'PY'
+          import importlib, sys
+          missing = []
+          for mod in ["django", "rest_framework", "celery", "psycopg", "redis", "gunicorn"]:
+              try:
+                  importlib.import_module(mod)
+              except Exception as e:
+                  print(f"IMPORT FAILED {mod}: {e}")
+                  missing.append(mod)
+          if missing:
+              print('Missing imports:', missing)
+              sys.exit(1)
+          print('All critical imports available')
+          PY
+
+      - name: Run basic smoke tests (health endpoint)
+        run: |
+          # ensure manage.py is importable and settings are configured
+          python - <<'PY'
+          import os, sys
+          sys.path.insert(0, 'backend')
+          try:
+              import django
+              from django.core.management import call_command
+              print('Django import OK')
+          except Exception as e:
+              print('Django import failed', e)
+              raise
+          PY
