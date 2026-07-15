@@ -1,5 +1,4 @@
-function App() {
-  return <h1>PricePulse</h1>;
+/** @deprecated Entry is main.jsx + routes/router.jsx */
+export default function App() {
+  return null;
 }
-
-export default App;

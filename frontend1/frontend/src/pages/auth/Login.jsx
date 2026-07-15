@@ -1,17 +1,17 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, LogIn } from "lucide-react";
+import { Eye, EyeOff, LogIn, UserRound } from "lucide-react";
 import { toast } from "sonner";
-
-import { login as loginService } from "../../services/authService";
+import { login as loginService, register as registerService } from "../../services/authService";
 import { useAuth } from "../../hooks/useAuth";
 
 function Login() {
   const navigate = useNavigate();
-  const { login } = useAuth();
-
+  const { login, enterGuestMode } = useAuth();
+  const [mode, setMode] = useState("login");
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -20,87 +20,135 @@ function Login() {
     e.preventDefault();
     setSubmitting(true);
     try {
+      if (mode === "register") {
+        await registerService({ username, email, password });
+        toast.success("Account created — signing you in");
+      }
       const data = await loginService({ username, password });
       login(data);
+      toast.success("Welcome back");
       navigate("/");
     } catch (error) {
-      toast.error("Invalid username or password");
+      const msg =
+        error?.response?.data?.username?.[0] ||
+        error?.response?.data?.password?.[0] ||
+        error?.response?.data?.detail ||
+        (mode === "register" ? "Could not create account" : "Invalid username or password");
+      toast.error(typeof msg === "string" ? msg : "Authentication failed");
       console.error(error);
     } finally {
       setSubmitting(false);
     }
   }
 
+  function handleGuest() {
+    enterGuestMode();
+    toast.success("Browsing as guest — all product features unlocked");
+    navigate("/");
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 dark:bg-zinc-950">
+    <div
+      className="flex min-h-screen items-center justify-center px-4"
+      style={{
+        background:
+          "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(22,163,74,0.1), transparent), #F8FAFC",
+      }}
+    >
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25 }}
         className="card w-full max-w-md p-8"
       >
         <div className="mb-8 text-center">
-          <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-600 text-lg font-bold text-white shadow-soft">
+          <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-lg font-bold text-white">
             P
           </span>
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">Welcome back</h1>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Sign in to PricePulse</p>
+          <h1 className="text-2xl font-bold text-ink">
+            {mode === "login" ? "Welcome back" : "Create account"}
+          </h1>
+          <p className="mt-1 text-sm text-muted">
+            {mode === "login" ? "Sign in to PricePulse" : "Track prices across stores"}
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
-              Username
-            </label>
+            <label className="mb-1.5 block text-sm font-medium text-muted">Username</label>
             <input
               type="text"
-              placeholder="you"
-              className="w-full rounded-xl border border-zinc-200 bg-white p-3 text-sm outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 dark:border-zinc-700 dark:bg-zinc-900"
+              className="input-field"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
+              minLength={4}
             />
           </div>
 
+          {mode === "register" && (
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-muted">Email</label>
+              <input
+                type="email"
+                className="input-field"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+          )}
+
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
-              Password
-            </label>
+            <label className="mb-1.5 block text-sm font-medium text-muted">Password</label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
-                className="w-full rounded-xl border border-zinc-200 bg-white p-3 pr-11 text-sm outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 dark:border-zinc-700 dark:bg-zinc-900"
+                className="input-field pr-11"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                minLength={8}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
               </button>
             </div>
+            {mode === "register" && (
+              <p className="mt-1 text-xs text-muted">
+                Min 8 chars, 1 uppercase, 1 number
+              </p>
+            )}
           </div>
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 py-3 font-semibold text-white transition hover:bg-brand-700 disabled:opacity-60"
-          >
+          <button type="submit" disabled={submitting} className="btn-primary w-full">
             <LogIn size={16} />
-            {submitting ? "Signing in..." : "Sign in"}
+            {submitting ? "Please wait…" : mode === "login" ? "Sign in" : "Create account"}
           </button>
         </form>
 
         <button
-          onClick={() => toast("Account creation is coming soon")}
-          className="mt-5 w-full text-center text-sm text-zinc-500 hover:text-brand-600 dark:text-zinc-400 dark:hover:text-brand-400"
+          type="button"
+          onClick={handleGuest}
+          className="btn-secondary mt-3 w-full"
         >
-          Don't have an account? <span className="font-medium">Create one</span>
+          <UserRound size={16} />
+          Continue as guest
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setMode((m) => (m === "login" ? "register" : "login"))}
+          className="mt-5 w-full text-center text-sm text-muted hover:text-primary"
+        >
+          {mode === "login" ? (
+            <>Don't have an account? <span className="font-medium">Create one</span></>
+          ) : (
+            <>Already have an account? <span className="font-medium">Sign in</span></>
+          )}
         </button>
       </motion.div>
     </div>

@@ -1,65 +1,119 @@
-import { Package, ArrowRight, Heart } from "lucide-react";
+import { Package, ArrowRight, Heart, TrendingDown, TrendingUp, Minus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import { useWishlist } from "../../hooks/useWishlist";
+
+const STORE_COLORS = {
+  Blinkit: "bg-yellow-100 text-yellow-800",
+  Zepto: "bg-purple-100 text-purple-800",
+  Instamart: "bg-orange-100 text-orange-800",
+};
+
+function formatINR(value) {
+  if (value == null || value === "") return "—";
+  return `₹${Number(value).toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
+}
+
+function TrendIcon({ trend }) {
+  if (trend === "down") return <TrendingDown size={14} className="text-primary" />;
+  if (trend === "up") return <TrendingUp size={14} className="text-danger" />;
+  if (trend === "flat") return <Minus size={14} className="text-muted" />;
+  return null;
+}
 
 function ProductCard({ product }) {
   const navigate = useNavigate();
   const { isWishlisted, toggleWishlist } = useWishlist();
   const wishlisted = isWishlisted(product.id);
 
-  // The /products/ list endpoint doesn't return price data today (only
-  // /products/{id}/prices/ does), so this badge only appears if the API
-  // response happens to include a lowest-price field. It never fetches
-  // a second endpoint per card — that would be a new N+1 request pattern,
-  // which is exactly the kind of business-logic change that's out of scope here.
-  const lowestPrice = product.lowest_price ?? product.current_price ?? null;
+  const lowest = product.lowest_price;
+  const savings = product.savings;
+  const store = product.cheapest_store;
 
   return (
-    <motion.div
-      whileHover={{ y: -4 }}
+    <motion.article
+      whileHover={{ y: -3 }}
       transition={{ duration: 0.15 }}
       onClick={() => navigate(`/products/${product.id}`)}
-      className="card group relative cursor-pointer p-6 transition-shadow hover:shadow-[var(--shadow-soft-lg)]"
+      className="card card-hover group relative cursor-pointer overflow-hidden p-5"
     >
       <button
+        type="button"
         onClick={(e) => {
           e.stopPropagation();
           toggleWishlist(product);
+          toast.success(wishlisted ? "Removed from wishlist" : "Saved to wishlist");
         }}
         aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
-        className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-soft transition hover:scale-105 dark:bg-zinc-800/90"
+        className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-line bg-surface/95 shadow-sm transition hover:scale-105"
       >
         <Heart
           size={16}
-          className={wishlisted ? "fill-rose-500 text-rose-500" : "text-zinc-400"}
+          className={wishlisted ? "fill-danger text-danger" : "text-muted"}
         />
       </button>
 
-      <div className="mb-6 flex h-32 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800">
-        <Package size={52} className="text-brand-500" />
+      <div className="mb-4 flex h-36 items-center justify-center overflow-hidden rounded-xl bg-canvas">
+        {product.image_url ? (
+          <img
+            src={product.image_url}
+            alt={product.name}
+            className="h-full w-full object-contain p-3"
+            loading="lazy"
+          />
+        ) : (
+          <Package size={48} className="text-slate-300" />
+        )}
       </div>
 
-      <h2 className="mb-1 truncate text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+      <div className="mb-2 flex flex-wrap gap-1.5">
+        {lowest != null && (
+          <span className="badge badge-cheap">Cheapest {formatINR(lowest)}</span>
+        )}
+        {savings != null && Number(savings) > 0 && (
+          <span className="badge badge-accent">Save {formatINR(savings)}</span>
+        )}
+      </div>
+
+      <h2 className="mb-1 line-clamp-2 text-[15px] font-semibold leading-snug text-ink">
         {product.name}
       </h2>
 
-      {lowestPrice && (
-        <span className="mb-2 inline-block rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
-          Lowest ₹{lowestPrice}
-        </span>
-      )}
+      <p className="mb-3 truncate text-xs text-muted">
+        {product.brand}
+        {product.category ? ` · ${product.category}` : ""}
+      </p>
 
-      <p className="truncate text-sm text-zinc-500 dark:text-zinc-400">{product.brand}</p>
-      <p className="mb-6 truncate text-sm text-zinc-400 dark:text-zinc-500">{product.category}</p>
-
-      <div className="flex items-center justify-between">
-        <span className="rounded-full bg-brand-50 px-3 py-1 text-sm font-medium text-brand-700 dark:bg-brand-500/10 dark:text-brand-300">
-          View details
-        </span>
-        <ArrowRight size={18} className="text-zinc-400 transition group-hover:translate-x-1 group-hover:text-brand-600" />
+      <div className="mb-4 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          {store && (
+            <span
+              className={`rounded-lg px-2 py-0.5 text-[11px] font-semibold ${
+                STORE_COLORS[store] ?? "bg-slate-100 text-slate-700"
+              }`}
+            >
+              {store}
+            </span>
+          )}
+          <TrendIcon trend={product.trend} />
+        </div>
+        <span className="tabular text-lg font-bold text-ink">{formatINR(lowest)}</span>
       </div>
-    </motion.div>
+
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/products/${product.id}`);
+          }}
+          className="btn-primary flex-1 !py-2 text-xs"
+        >
+          Compare <ArrowRight size={14} />
+        </button>
+      </div>
+    </motion.article>
   );
 }
 

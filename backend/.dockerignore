@@ -1,6 +1,9 @@
-venv/
+.venv/
 __pycache__/
 *.pyc
-db.sqlite3
 .env
-.git
+media/
+staticfiles/
+celerybeat-schedule*
+*.sqlite3
+.pytest_cache/

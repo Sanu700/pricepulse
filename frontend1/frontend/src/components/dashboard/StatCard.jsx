@@ -5,33 +5,25 @@ function StatCard({ title, value, icon: Icon, trend, trendLabel }) {
   const isUp = typeof trend === "number" && trend >= 0;
 
   return (
-    <motion.div
-      whileHover={{ y: -3 }}
-      transition={{ duration: 0.15 }}
-      className="card p-6"
-    >
+    <motion.div whileHover={{ y: -2 }} transition={{ duration: 0.15 }} className="card p-5">
       <div className="flex items-start justify-between">
-        <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">{title}</p>
+        <p className="text-sm font-medium text-muted">{title}</p>
         {Icon && (
-          <span className="rounded-lg bg-brand-50 p-2 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400">
+          <span className="rounded-xl bg-primary-soft p-2 text-primary">
             <Icon size={16} />
           </span>
         )}
       </div>
-
-      <h2 className="tabular mt-4 text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-        {value}
-      </h2>
-
+      <h2 className="tabular mt-3 text-2xl font-bold tracking-tight text-ink sm:text-3xl">{value}</h2>
       {typeof trend === "number" && (
         <div
-          className={`mt-3 flex items-center gap-1 text-sm font-medium ${
-            isUp ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
+          className={`mt-2 flex items-center gap-1 text-sm font-medium ${
+            isUp ? "text-primary" : "text-danger"
           }`}
         >
           {isUp ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
           <span>{Math.abs(trend)}%</span>
-          {trendLabel && <span className="font-normal text-zinc-400">{trendLabel}</span>}
+          {trendLabel && <span className="font-normal text-muted">{trendLabel}</span>}
         </div>
       )}
     </motion.div>

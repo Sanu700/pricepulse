@@ -49,17 +49,19 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // If no response or not 401, reject
     if (!error.response || error.response.status !== 401) {
       return Promise.reject(error);
     }
 
-    // Avoid infinite loop
+    // Guest mode / public browsing — don't force login redirect loops
+    if (localStorage.getItem("pricepulse_guest") === "1" || !localStorage.getItem("refresh")) {
+      return Promise.reject(error);
+    }
+
     if (originalRequest._retry) {
       return Promise.reject(error);
     }
 
-    // Mark request as retried
     originalRequest._retry = true;
 
     try {
@@ -69,7 +71,6 @@ api.interceptors.response.use(
           const newToken = await refreshAccessToken();
           onRefreshed(newToken);
         } catch (refreshErr) {
-          // Refresh failed -> logout and redirect to login
           localStorage.removeItem("access");
           localStorage.removeItem("refresh");
           window.location.href = "/login";
@@ -79,15 +80,13 @@ api.interceptors.response.use(
         }
       }
 
-      // Queue the request until token refreshed
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         addRefreshSubscriber((token) => {
-          // update header and retry
           if (token) {
             originalRequest.headers = originalRequest.headers || {};
             originalRequest.headers.Authorization = `Bearer ${token}`;
           }
-          resolve(axios(originalRequest));
+          resolve(api(originalRequest));
         });
       });
     } catch (e) {
