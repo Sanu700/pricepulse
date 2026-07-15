@@ -95,7 +95,10 @@ function BasketOptimizer() {
         </div>
 
         <div className="card p-5 sm:p-6">
-          <h2 className="mb-4 text-lg font-semibold text-ink">Store totals</h2>
+          <h2 className="mb-1 text-lg font-semibold text-ink">Store totals</h2>
+          <p className="mb-4 text-xs text-muted">
+            Estimates from current price ranges — not live checkout carts.
+          </p>
           {!basket ? (
             <p className="text-sm text-muted">Select at least one product.</p>
           ) : (

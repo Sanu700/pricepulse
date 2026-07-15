@@ -29,7 +29,7 @@ class NotificationService:
 
         product_id = notification.get("product_id")
         if product_id:
-            alerts = PriceAlert.objects.filter(
+            alerts = PriceAlert.objects.select_related("user").filter(
                 product_id=product_id,
                 is_active=True,
                 target_price__gte=notification["new_price"],

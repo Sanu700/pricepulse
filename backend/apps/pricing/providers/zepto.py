@@ -78,19 +78,20 @@ class ZeptoProvider(BaseProvider):
                 or product.get("mrp")
                 or product.get("price")
             )
-            # Zepto often stores paise
-            if isinstance(price, (int, float)) and price > 1000:
+            # Zepto consumer APIs typically return integer paise.
+            if isinstance(price, int):
                 price = Decimal(price) / Decimal(100)
+            else:
+                price = Decimal(str(price))
             pid = product.get("id") or product.get("productId") or product.get("objectId")
-            if not name or price is None or pid is None:
+            if not name or pid is None:
                 continue
             try:
                 products.append(
                     ProviderProduct(
                         external_id=str(pid),
                         name=str(name),
-                        price=Decimal(str(price)),
-                        in_stock=bool(product.get("available", product.get("inStock", True))),
+                        price=price,                        in_stock=bool(product.get("available", product.get("inStock", True))),
                         image_url=(
                             product.get("imageUrl")
                             or product.get("image")

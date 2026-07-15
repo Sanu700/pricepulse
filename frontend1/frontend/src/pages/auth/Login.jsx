@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, LogIn, UserRound } from "lucide-react";
 import { toast } from "sonner";
@@ -8,7 +8,11 @@ import { useAuth } from "../../hooks/useAuth";
 
 function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login, enterGuestMode } = useAuth();
+  const redirectTo = location.state?.from?.pathname
+    ? `${location.state.from.pathname}${location.state.from.search || ""}`
+    : "/";
   const [mode, setMode] = useState("login");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -27,7 +31,7 @@ function Login() {
       const data = await loginService({ username, password });
       login(data);
       toast.success("Welcome back");
-      navigate("/");
+      navigate(redirectTo, { replace: true });
     } catch (error) {
       const msg =
         error?.response?.data?.username?.[0] ||
@@ -44,7 +48,7 @@ function Login() {
   function handleGuest() {
     enterGuestMode();
     toast.success("Browsing as guest — all product features unlocked");
-    navigate("/");
+    navigate(redirectTo, { replace: true });
   }
 
   return (
@@ -74,39 +78,51 @@ function Login() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-muted">Username</label>
+            <label htmlFor="pp-username" className="mb-1.5 block text-sm font-medium text-muted">
+              Username
+            </label>
             <input
+              id="pp-username"
               type="text"
               className="input-field"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
               minLength={4}
+              autoComplete="username"
             />
           </div>
 
           {mode === "register" && (
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-muted">Email</label>
+              <label htmlFor="pp-email" className="mb-1.5 block text-sm font-medium text-muted">
+                Email
+              </label>
               <input
+                id="pp-email"
                 type="email"
                 className="input-field"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
               />
             </div>
           )}
 
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-muted">Password</label>
+            <label htmlFor="pp-password" className="mb-1.5 block text-sm font-medium text-muted">
+              Password
+            </label>
             <div className="relative">
               <input
+                id="pp-password"
                 type={showPassword ? "text" : "password"}
                 className="input-field pr-11"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={8}
+                autoComplete={mode === "login" ? "current-password" : "new-password"}
               />
               <button
                 type="button"
@@ -118,9 +134,7 @@ function Login() {
               </button>
             </div>
             {mode === "register" && (
-              <p className="mt-1 text-xs text-muted">
-                Min 8 chars, 1 uppercase, 1 number
-              </p>
+              <p className="mt-1 text-xs text-muted">Min 8 chars, 1 uppercase, 1 number</p>
             )}
           </div>
 
@@ -130,11 +144,7 @@ function Login() {
           </button>
         </form>
 
-        <button
-          type="button"
-          onClick={handleGuest}
-          className="btn-secondary mt-3 w-full"
-        >
+        <button type="button" onClick={handleGuest} className="btn-secondary mt-3 w-full">
           <UserRound size={16} />
           Continue as guest
         </button>
@@ -145,9 +155,13 @@ function Login() {
           className="mt-5 w-full text-center text-sm text-muted hover:text-primary"
         >
           {mode === "login" ? (
-            <>Don't have an account? <span className="font-medium">Create one</span></>
+            <>
+              Don't have an account? <span className="font-medium">Create one</span>
+            </>
           ) : (
-            <>Already have an account? <span className="font-medium">Sign in</span></>
+            <>
+              Already have an account? <span className="font-medium">Sign in</span>
+            </>
           )}
         </button>
       </motion.div>

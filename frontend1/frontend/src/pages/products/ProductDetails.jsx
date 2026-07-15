@@ -29,8 +29,16 @@ function formatINR(v) {
 function ProductDetails() {
   const { id } = useParams();
   const { data, isLoading, error } = useProduct(id);
-  const { data: prices, isLoading: pricesLoading } = useProductPrices(id);
-  const { data: history, isLoading: historyLoading } = useProductHistory(id);
+  const {
+    data: prices,
+    isLoading: pricesLoading,
+    isError: pricesError,
+  } = useProductPrices(id);
+  const {
+    data: history,
+    isLoading: historyLoading,
+    isError: historyError,
+  } = useProductHistory(id);
   const { data: stats } = useProductStats(id);
   const { isWishlisted, toggleWishlist } = useWishlist();
   const [alertPrice, setAlertPrice] = useState("");
@@ -169,22 +177,34 @@ function ProductDetails() {
           <form onSubmit={handleAlert} className="card space-y-3 p-4">
             <p className="text-sm font-semibold text-ink">Set a price alert</p>
             <div className="grid gap-2 sm:grid-cols-2">
-              <input
-                type="number"
-                step="0.01"
-                min="1"
-                placeholder="Notify below ₹"
-                value={alertPrice}
-                onChange={(e) => setAlertPrice(e.target.value)}
-                className="input-field"
-              />
-              <input
-                type="email"
-                placeholder="Email (optional)"
-                value={alertEmail}
-                onChange={(e) => setAlertEmail(e.target.value)}
-                className="input-field"
-              />
+              <div>
+                <label htmlFor="alert-price" className="mb-1 block text-xs font-medium text-muted">
+                  Notify below (₹)
+                </label>
+                <input
+                  id="alert-price"
+                  type="number"
+                  step="0.01"
+                  min="1"
+                  placeholder="50"
+                  value={alertPrice}
+                  onChange={(e) => setAlertPrice(e.target.value)}
+                  className="input-field"
+                />
+              </div>
+              <div>
+                <label htmlFor="alert-email" className="mb-1 block text-xs font-medium text-muted">
+                  Email (optional)
+                </label>
+                <input
+                  id="alert-email"
+                  type="email"
+                  placeholder="you@email.com"
+                  value={alertEmail}
+                  onChange={(e) => setAlertEmail(e.target.value)}
+                  className="input-field"
+                />
+              </div>
             </div>
             <button type="submit" disabled={savingAlert} className="btn-primary w-full sm:w-auto">
               {savingAlert ? "Saving…" : "Save alert"}
@@ -204,6 +224,8 @@ function ProductDetails() {
             <Skeleton className="h-14" />
             <Skeleton className="h-14" />
           </div>
+        ) : pricesError ? (
+          <p className="p-6 text-sm text-danger">Couldn’t load store prices. Try refreshing.</p>
         ) : currentPrices.length === 0 ? (
           <p className="p-6 text-sm text-muted">No prices yet — run price collection.</p>
         ) : (
@@ -285,6 +307,8 @@ function ProductDetails() {
 
       {historyLoading ? (
         <Skeleton className="h-80" />
+      ) : historyError ? (
+        <div className="card p-6 text-sm text-danger">Couldn’t load price history.</div>
       ) : (
         <PriceHistoryChart data={history ?? []} />
       )}

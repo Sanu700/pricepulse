@@ -76,25 +76,20 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def get_trend(self, obj):
         """
-        Simple trend vs last two history points for the cheapest store.
-        Returns 'down' | 'up' | 'flat' | null.
+        Compare current low vs high across stores as a cheap proxy for
+        "worth comparing" without N+1 history queries on list endpoints.
+        Detail pages use /stats/ and /history/ for precise trends.
         """
-        history = list(obj.price_history.all()[:2]) if hasattr(obj, "price_history") else []
-        if len(history) < 2:
-            # Try related manager without slice prefetch
-            history = list(
-                obj.price_history.order_by("-recorded_at").values_list("price", flat=True)[:2]
-            )
-            if len(history) < 2:
-                return None
-            newest, previous = history[0], history[1]
-        else:
-            newest, previous = history[0].price, history[1].price
-
-        if newest < previous:
+        low = self.get_lowest_price(obj)
+        high = self.get_highest_price(obj)
+        if low is None or high is None:
+            return None
+        spread = float(high) - float(low)
+        if spread <= 0:
+            return "flat"
+        # Wider inter-store gap → treat as "down" opportunity (savings available)
+        if spread / max(float(high), 1) >= 0.05:
             return "down"
-        if newest > previous:
-            return "up"
         return "flat"
 
     def get_store_count(self, obj):

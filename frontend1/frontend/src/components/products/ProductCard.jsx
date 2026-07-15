@@ -6,7 +6,7 @@ import { useWishlist } from "../../hooks/useWishlist";
 
 const STORE_COLORS = {
   Blinkit: "bg-yellow-100 text-yellow-800",
-  Zepto: "bg-purple-100 text-purple-800",
+  Zepto: "bg-violet-100 text-violet-800",
   Instamart: "bg-orange-100 text-orange-800",
 };
 
@@ -16,9 +16,9 @@ function formatINR(value) {
 }
 
 function TrendIcon({ trend }) {
-  if (trend === "down") return <TrendingDown size={14} className="text-primary" />;
-  if (trend === "up") return <TrendingUp size={14} className="text-danger" />;
-  if (trend === "flat") return <Minus size={14} className="text-muted" />;
+  if (trend === "down") return <TrendingDown size={14} className="text-primary" aria-hidden />;
+  if (trend === "up") return <TrendingUp size={14} className="text-danger" aria-hidden />;
+  if (trend === "flat") return <Minus size={14} className="text-muted" aria-hidden />;
   return null;
 }
 
@@ -31,12 +31,25 @@ function ProductCard({ product }) {
   const savings = product.savings;
   const store = product.cheapest_store;
 
+  function openProduct() {
+    navigate(`/products/${product.id}`);
+  }
+
   return (
     <motion.article
       whileHover={{ y: -3 }}
       transition={{ duration: 0.15 }}
-      onClick={() => navigate(`/products/${product.id}`)}
-      className="card card-hover group relative cursor-pointer overflow-hidden p-5"
+      role="link"
+      tabIndex={0}
+      onClick={openProduct}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openProduct();
+        }
+      }}
+      className="card card-hover group relative cursor-pointer overflow-hidden p-5 outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+      aria-label={`View ${product.name}`}
     >
       <button
         type="button"
@@ -48,10 +61,7 @@ function ProductCard({ product }) {
         aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
         className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-line bg-surface/95 shadow-sm transition hover:scale-105"
       >
-        <Heart
-          size={16}
-          className={wishlisted ? "fill-danger text-danger" : "text-muted"}
-        />
+        <Heart size={16} className={wishlisted ? "fill-danger text-danger" : "text-muted"} />
       </button>
 
       <div className="mb-4 flex h-36 items-center justify-center overflow-hidden rounded-xl bg-canvas">
@@ -63,7 +73,7 @@ function ProductCard({ product }) {
             loading="lazy"
           />
         ) : (
-          <Package size={48} className="text-slate-300" />
+          <Package size={48} className="text-slate-300" aria-hidden />
         )}
       </div>
 
@@ -101,18 +111,16 @@ function ProductCard({ product }) {
         <span className="tabular text-lg font-bold text-ink">{formatINR(lowest)}</span>
       </div>
 
-      <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            navigate(`/products/${product.id}`);
-          }}
-          className="btn-primary flex-1 !py-2 text-xs"
-        >
-          Compare <ArrowRight size={14} />
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          openProduct();
+        }}
+        className="btn-primary w-full !py-2 text-xs"
+      >
+        Compare <ArrowRight size={14} />
+      </button>
     </motion.article>
   );
 }

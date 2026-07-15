@@ -8,7 +8,9 @@ function unwrapList(data) {
 }
 
 export async function getProducts(params = {}) {
-  const response = await api.get("/products/", { params });
+  const response = await api.get("/products/", {
+    params: { page_size: 48, ...params },
+  });
   return unwrapList(response.data);
 }
 
@@ -18,7 +20,6 @@ export async function getProduct(id) {
 }
 
 export async function getProductPrices(id) {
-  // Prefer nested comparison endpoint; fall back to pricing endpoint
   try {
     const response = await api.get(`/products/${id}/prices/`);
     const data = response.data;

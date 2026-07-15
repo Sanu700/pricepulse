@@ -61,12 +61,6 @@ def enforce_rate_limit(provider: str) -> None:
         logger.debug("Rate-limit cache unavailable; continuing")
 
 
-@retry(
-    retry=retry_if_exception_type((httpx.TimeoutException, httpx.TransportError)),
-    stop=stop_after_attempt(3),
-    wait=wait_exponential(multiplier=0.5, min=0.5, max=4),
-    reraise=True,
-)
 def http_get(
     url: str,
     *,
@@ -75,14 +69,24 @@ def http_get(
     headers: Optional[dict] = None,
     timeout: Optional[float] = None,
 ) -> httpx.Response:
-    enforce_rate_limit(provider)
-    timeout = timeout or getattr(settings, "PROVIDER_TIMEOUT", 8)
-    merged = {**DEFAULT_HEADERS, **(headers or {})}
+    retries = max(1, int(getattr(settings, "PROVIDER_MAX_RETRIES", 2)) + 1)
 
-    with httpx.Client(timeout=timeout, follow_redirects=True) as client:
-        response = client.get(url, params=params, headers=merged)
-        response.raise_for_status()
-        return response
+    @retry(
+        retry=retry_if_exception_type((httpx.TimeoutException, httpx.TransportError)),
+        stop=stop_after_attempt(retries),
+        wait=wait_exponential(multiplier=0.5, min=0.5, max=4),
+        reraise=True,
+    )
+    def _do_get() -> httpx.Response:
+        enforce_rate_limit(provider)
+        req_timeout = timeout or getattr(settings, "PROVIDER_TIMEOUT", 8)
+        merged = {**DEFAULT_HEADERS, **(headers or {})}
+        with httpx.Client(timeout=req_timeout, follow_redirects=True) as client:
+            response = client.get(url, params=params, headers=merged)
+            response.raise_for_status()
+            return response
+
+    return _do_get()
 
 
 def http_get_json(
@@ -98,8 +102,10 @@ def http_get_json(
 
 def cached_json(cache_key: str, ttl: int, loader):
     """Return cached JSON or call loader() and store the result."""
+    # Sanitize keys for cache backends that reject spaces/special chars
+    safe_key = "".join(ch if ch.isalnum() or ch in "._-:" else "_" for ch in cache_key)[:200]
     try:
-        cached = cache.get(cache_key)
+        cached = cache.get(safe_key)
         if cached is not None:
             return cached
     except Exception:
@@ -107,7 +113,7 @@ def cached_json(cache_key: str, ttl: int, loader):
 
     data = loader()
     try:
-        cache.set(cache_key, data, timeout=ttl)
+        cache.set(safe_key, data, timeout=ttl)
     except Exception:
         pass
     return data

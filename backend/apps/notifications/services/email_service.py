@@ -1,9 +1,8 @@
 """
 Email notification hook.
 
-When SMTP is not configured, messages are printed via Django's console
-backend (or skipped with a clear log). Real SMTP only activates when
-EMAIL_HOST is set.
+Console backend is for local demos only and does NOT count as configured
+production delivery. Real SMTP activates when EMAIL_HOST is set.
 """
 
 from __future__ import annotations
@@ -19,11 +18,10 @@ logger = logging.getLogger(__name__)
 class EmailNotificationService:
     @staticmethod
     def is_configured() -> bool:
-        backend = getattr(settings, "EMAIL_BACKEND", "")
         host = getattr(settings, "EMAIL_HOST", "") or ""
-        # Console backend counts as "configured" for local demos
+        backend = getattr(settings, "EMAIL_BACKEND", "") or ""
         if "console" in backend:
-            return True
+            return False
         return bool(host)
 
     @staticmethod

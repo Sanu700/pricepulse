@@ -72,49 +72,50 @@ class AnalyticsSummaryAPIView(APIView):
             max_price=Max("price"),
         )
 
-        # Biggest drop: compare newest two history points per product+store
+        # Newest + previous history point per (product, store)
         drops = []
+        pairs_seen = set()
         recent_history = (
             PriceHistory.objects.select_related("product", "store")
-            .order_by("-recorded_at")[:200]
+            .order_by("product_id", "store_id", "-recorded_at")[:500]
         )
-        seen = {}
+        prev_by_pair = {}
         for row in recent_history:
             key = (row.product_id, row.store_id)
-            if key not in seen:
-                seen[key] = row
-            elif "prev" not in seen[key].__dict__:
-                prev = row
-                newest = seen[key]
-                if newest.price < prev.price:
-                    drops.append(
-                        {
-                            "product_id": newest.product_id,
-                            "product": newest.product.name,
-                            "store": newest.store.name,
-                            "from": float(prev.price),
-                            "to": float(newest.price),
-                            "savings": float(prev.price - newest.price),
-                            "recorded_at": newest.recorded_at.isoformat(),
-                        }
-                    )
+            if key not in prev_by_pair:
+                prev_by_pair[key] = row
+                continue
+            if key in pairs_seen:
+                continue
+            pairs_seen.add(key)
+            newest = prev_by_pair[key]
+            previous = row
+            if newest.price < previous.price:
+                drops.append(
+                    {
+                        "product_id": newest.product_id,
+                        "product": newest.product.name,
+                        "store": newest.store.name,
+                        "from": float(previous.price),
+                        "to": float(newest.price),
+                        "savings": float(previous.price - newest.price),
+                        "recorded_at": newest.recorded_at.isoformat(),
+                    }
+                )
 
         drops.sort(key=lambda d: d["savings"], reverse=True)
-
-        # Average savings across products (high - low)
-        savings_total = 0
-        savings_count = 0
         biggest_drop = drops[0] if drops else None
 
-        for product in Product.objects.annotate(
-            low=Min("current_prices__price"),
-            high=Max("current_prices__price"),
-        ):
-            if product.low is not None and product.high is not None:
-                savings_total += float(product.high - product.low)
-                savings_count += 1
-
-        avg_savings = round(savings_total / savings_count, 2) if savings_count else 0
+        savings_rows = (
+            Product.objects.annotate(
+                low=Min("current_prices__price"),
+                high=Max("current_prices__price"),
+            )
+            .filter(low__isnull=False, high__isnull=False)
+            .values_list("low", "high")
+        )
+        savings_values = [float(high - low) for low, high in savings_rows]
+        avg_savings = round(sum(savings_values) / len(savings_values), 2) if savings_values else 0
 
         store_averages = (
             CurrentPrice.objects.values("store__name")
@@ -122,8 +123,9 @@ class AnalyticsSummaryAPIView(APIView):
             .order_by("avg")
         )
 
-        trending = (
-            Product.objects.annotate(
+        trending = list(
+            Product.objects.select_related("brand")
+            .annotate(
                 low=Min("current_prices__price"),
                 high=Max("current_prices__price"),
             )
@@ -131,12 +133,14 @@ class AnalyticsSummaryAPIView(APIView):
             .order_by("low")[:8]
         )
 
-        daily = (
+        # Most recent 30 days (fetch descending, reverse for charts)
+        daily_desc = list(
             PriceHistory.objects.annotate(day=TruncDate("recorded_at"))
             .values("day")
             .annotate(avg=Avg("price"))
-            .order_by("day")[:30]
+            .order_by("-day")[:30]
         )
+        daily = list(reversed(daily_desc))
 
         return Response(
             {
@@ -165,7 +169,10 @@ class AnalyticsSummaryAPIView(APIView):
                     for p in trending
                 ],
                 "daily_average": [
-                    {"day": row["day"].isoformat() if row["day"] else None, "avg": row["avg"]}
+                    {
+                        "day": row["day"].isoformat() if row["day"] else None,
+                        "avg": row["avg"],
+                    }
                     for row in daily
                 ],
                 "cheapest_deals": [
@@ -190,7 +197,7 @@ class ProductStatsAPIView(APIView):
     permission_classes = []
 
     def get(self, request, product_id):
-        history = PriceHistory.objects.filter(product_id=product_id)
+        history = PriceHistory.objects.filter(product_id=product_id).select_related("store")
         current = CurrentPrice.objects.filter(product_id=product_id)
 
         hist_agg = history.aggregate(
@@ -203,17 +210,24 @@ class ProductStatsAPIView(APIView):
             highest=Max("price"),
         )
 
-        last_two = list(history.order_by("-recorded_at")[:2])
+        # Last change within the same store (avoid cross-store false deltas)
         last_change = None
-        if len(last_two) == 2:
-            newest, previous = last_two
-            last_change = {
-                "from": previous.price,
-                "to": newest.price,
-                "delta": newest.price - previous.price,
-                "store": newest.store.name,
-                "recorded_at": newest.recorded_at,
-            }
+        for store_id in (
+            history.order_by("-recorded_at")
+            .values_list("store_id", flat=True)
+            .distinct()[:5]
+        ):
+            pair = list(history.filter(store_id=store_id).order_by("-recorded_at")[:2])
+            if len(pair) == 2:
+                newest, previous = pair
+                last_change = {
+                    "from": previous.price,
+                    "to": newest.price,
+                    "delta": newest.price - previous.price,
+                    "store": newest.store.name,
+                    "recorded_at": newest.recorded_at,
+                }
+                break
 
         savings = None
         if current_agg["lowest"] is not None and current_agg["highest"] is not None:

@@ -87,8 +87,12 @@ REST_FRAMEWORK = {
         "rest_framework.filters.SearchFilter",
         "rest_framework.filters.OrderingFilter",
     ],
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-    "PAGE_SIZE": 24,
+    "DEFAULT_PAGINATION_CLASS": "common.pagination.FlexiblePagination",
+    "PAGE_SIZE": 48,
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "120/min",
+        "user": "300/min",
+    },
 }
 
 SIMPLE_JWT = {

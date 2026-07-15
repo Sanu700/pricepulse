@@ -6,19 +6,15 @@ const api = axios.create({
   baseURL,
 });
 
-// Attach access token to outgoing requests
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("access");
-
   if (token) {
     config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;
   }
-
   return config;
 });
 
-// Response interceptor to handle 401 -> attempt refresh once, then retry
 let isRefreshing = false;
 let refreshSubscribers = [];
 
@@ -36,7 +32,6 @@ async function refreshAccessToken() {
   if (!refresh) throw new Error("No refresh token available");
 
   const response = await axios.post(`${baseURL}/accounts/refresh/`, { refresh });
-
   const access = response.data.access;
   if (access) {
     localStorage.setItem("access", access);
@@ -53,7 +48,6 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Guest mode / public browsing — don't force login redirect loops
     if (localStorage.getItem("pricepulse_guest") === "1" || !localStorage.getItem("refresh")) {
       return Promise.reject(error);
     }
@@ -64,34 +58,35 @@ api.interceptors.response.use(
 
     originalRequest._retry = true;
 
-    try {
+    // Queue this request first, then kick off a single shared refresh.
+    // Fixes hang where onRefreshed() fired before the initiator subscribed.
+    return new Promise((resolve, reject) => {
+      addRefreshSubscriber((token) => {
+        if (!token) {
+          reject(error);
+          return;
+        }
+        originalRequest.headers = originalRequest.headers || {};
+        originalRequest.headers.Authorization = `Bearer ${token}`;
+        resolve(api(originalRequest));
+      });
+
       if (!isRefreshing) {
         isRefreshing = true;
-        try {
-          const newToken = await refreshAccessToken();
-          onRefreshed(newToken);
-        } catch (refreshErr) {
-          localStorage.removeItem("access");
-          localStorage.removeItem("refresh");
-          window.location.href = "/login";
-          return Promise.reject(refreshErr);
-        } finally {
-          isRefreshing = false;
-        }
+        refreshAccessToken()
+          .then((newToken) => onRefreshed(newToken))
+          .catch((refreshErr) => {
+            localStorage.removeItem("access");
+            localStorage.removeItem("refresh");
+            onRefreshed(null);
+            window.location.href = "/login";
+            reject(refreshErr);
+          })
+          .finally(() => {
+            isRefreshing = false;
+          });
       }
-
-      return new Promise((resolve) => {
-        addRefreshSubscriber((token) => {
-          if (token) {
-            originalRequest.headers = originalRequest.headers || {};
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-          }
-          resolve(api(originalRequest));
-        });
-      });
-    } catch (e) {
-      return Promise.reject(e);
-    }
+    });
   }
 );
 
