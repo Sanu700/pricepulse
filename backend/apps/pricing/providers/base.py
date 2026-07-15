@@ -1,16 +1,14 @@
 """
-Grocery provider interface.
-
-The rest of the application depends only on this contract — never on a
-specific store's HTTP details.
+Normalized grocery provider interface + matching helpers.
 """
 
 from __future__ import annotations
 
+import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from decimal import Decimal
-from typing import Optional
+from typing import Any, Optional
 
 
 @dataclass
@@ -25,11 +23,166 @@ class ProviderProduct:
     product_url: Optional[str] = None
     brand: Optional[str] = None
     unit: Optional[str] = None
+    mrp: Optional[Decimal] = None
+    barcode: Optional[str] = None
+    store: Optional[str] = None
     raw: dict = field(default_factory=dict)
 
 
+_TOKEN_RE = re.compile(r"[a-z0-9]+")
+_UNIT_RE = re.compile(
+    r"(\d+(?:\.\d+)?)\s*(kg|g|gm|grams?|ml|l|ltr|litre|liter|pack|pcs|piece|pieces)\b",
+    re.I,
+)
+
+
+def normalize_name(name: str) -> str:
+    return " ".join(_TOKEN_RE.findall((name or "").lower()))
+
+
+def extract_unit(text: str) -> Optional[str]:
+    match = _UNIT_RE.search(text or "")
+    if not match:
+        return None
+    value, unit = match.group(1), match.group(2).lower()
+    unit = {"gm": "g", "gram": "g", "grams": "g", "ltr": "l", "litre": "l", "liter": "l"}.get(
+        unit, unit
+    )
+    return f"{value}{unit}"
+
+
+def styled_text(value: Any) -> Optional[str]:
+    """Blinkit/Zepto often wrap display strings as ``{\"text\": \"...\"}`` objects."""
+    if value is None:
+        return None
+    if isinstance(value, dict):
+        inner = value.get("text")
+        if inner is None:
+            inner = value.get("value") or value.get("price") or value.get("title")
+        return styled_text(inner)
+    text = str(value).strip()
+    return text or None
+
+
+def parse_money(value: Any, *, paise: bool = False) -> Optional[Decimal]:
+    """Parse a price that may be styled text, INR with ₹, or paise integers."""
+    if value is None:
+        return None
+    if isinstance(value, dict):
+        return parse_money(
+            value.get("value") or value.get("price") or value.get("text") or value.get("mrp"),
+            paise=paise,
+        )
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        amount = Decimal(str(value))
+        if paise:
+            amount = amount / Decimal(100)
+        return amount
+    text = str(value).replace("₹", "").replace(",", "").strip()
+    if not text:
+        return None
+    try:
+        amount = Decimal(text)
+    except Exception:
+        return None
+    if paise:
+        amount = amount / Decimal(100)
+    return amount
+
+
+def fuzzy_score(
+    query: str,
+    candidate: str,
+    *,
+    brand: Optional[str] = None,
+    candidate_brand: Optional[str] = None,
+    catalog_unit: Optional[str] = None,
+    candidate_unit: Optional[str] = None,
+) -> float:
+    """
+    Token Jaccard + brand/unit bonuses. Returns 0..2+.
+    """
+    q = normalize_name(query)
+    c = normalize_name(candidate)
+    if not q or not c:
+        return 0.0
+    if q == c:
+        overlap = 1.5
+    else:
+        qt, ct = set(q.split()), set(c.split())
+        if not qt or not ct:
+            return 0.0
+        overlap = len(qt & ct) / len(qt | ct)
+
+    qu = catalog_unit or extract_unit(query)
+    cu = candidate_unit or extract_unit(candidate)
+    if qu and cu and qu == cu:
+        overlap += 0.5
+    elif qu and cu:
+        # Handle "500g" catalog vs "1 pack (500 g)" provider units
+        qu_num = re.sub(r"[^0-9.]", "", qu)
+        cu_num = re.sub(r"[^0-9.]", "", cu)
+        qu_kind = re.sub(r"[0-9.]", "", qu)
+        cu_kind = re.sub(r"[0-9.]", "", cu)
+        if qu_num and qu_num == cu_num and qu_kind == cu_kind:
+            overlap += 0.45
+
+    if brand and candidate_brand:
+        bn = normalize_name(brand)
+        cbn = normalize_name(str(candidate_brand))
+        if bn and cbn:
+            if bn == cbn:
+                overlap += 0.35
+            elif bn in cbn or cbn in bn:
+                overlap += 0.15
+
+    # brand-ish first token match
+    if q.split()[0] == c.split()[0]:
+        overlap += 0.1
+    return overlap
+
+
+def catalog_search_queries(product) -> list[str]:
+    """Build provider search queries from a catalog Product."""
+    name = (getattr(product, "name", None) or "").strip()
+    brand_name = ""
+    if getattr(product, "brand", None) is not None:
+        brand_name = getattr(product.brand, "name", None) or str(product.brand)
+
+    queries: list[str] = []
+    if name:
+        queries.append(name)
+
+    unit = extract_unit(name)
+    core = name
+    if unit:
+        core = re.sub(re.escape(unit), "", name, flags=re.I)
+        core = re.sub(r"\b\d+\s*(kg|g|gm|ml|l|ltr|litre|liter|pack|pcs)\b", "", core, flags=re.I)
+        core = " ".join(core.split()).strip(" -")
+
+    if brand_name and core:
+        queries.append(f"{brand_name} {core}".strip())
+    if brand_name and name.lower().startswith(brand_name.lower()):
+        stripped = name[len(brand_name) :].strip()
+        if stripped:
+            queries.append(f"{brand_name} {stripped}".strip())
+
+    # Preserve order, drop duplicates
+    seen: set[str] = set()
+    unique: list[str] = []
+    for q in queries:
+        key = q.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(q)
+    return unique
+
+
 class BaseProvider(ABC):
-    """Common interface implemented by Blinkit, Zepto, Instamart, etc."""
+    """Common interface implemented by Blinkit, Zepto, Instamart, aggregators."""
 
     name: str = "base"
     store_slug: str = "base"
@@ -39,31 +192,55 @@ class BaseProvider(ABC):
         """Search the provider catalog for products matching `query`."""
 
     def search_products(self, query: str, *, limit: int = 10) -> list[ProviderProduct]:
-        """Alias kept for callers that prefer the plural verb."""
         return self.search(query, limit=limit)
 
     @abstractmethod
     def get_product(self, external_id: str) -> Optional[ProviderProduct]:
         """Fetch a single product by provider-specific id."""
 
-    def get_price(self, external_id: str) -> Optional[Decimal]:
-        """Convenience helper — returns only the current price."""
+    def get_current_price(self, external_id: str) -> Optional[Decimal]:
         product = self.get_product(external_id)
         return product.price if product else None
+
+    # Alias kept for older call sites
+    def get_price(self, external_id: str) -> Optional[Decimal]:
+        return self.get_current_price(external_id)
+
+    def get_availability(self, external_id: str) -> Optional[bool]:
+        product = self.get_product(external_id)
+        return product.in_stock if product else None
+
+    def get_store(self) -> str:
+        return self.name
 
     def fetch_price_for_catalog_product(self, product) -> Optional[dict]:
         """
         Resolve a PricePulse catalog Product against this provider.
 
-        Returns a dict compatible with PriceService.update_price:
-            {"price": Decimal, "in_stock": bool, "product_url": str|None}
+        Returns a dict compatible with PriceService.update_price.
         """
-        results = self.search(product.name, limit=5)
+        brand_name = None
+        if getattr(product, "brand", None) is not None:
+            brand_name = getattr(product.brand, "name", None) or str(product.brand)
+
+        catalog_unit = extract_unit(product.name)
+        results: list[ProviderProduct] = []
+        for query in catalog_search_queries(product):
+            results = self.search(query, limit=12)
+            if results:
+                break
+
         if not results:
             return None
 
-        # Prefer exact / close name matches
-        match = self._best_match(product.name, results)
+        barcode = getattr(product, "barcode", None)
+        match = self._best_match(
+            product.name,
+            results,
+            barcode=barcode,
+            brand=brand_name,
+            catalog_unit=catalog_unit,
+        )
         if not match:
             return None
 
@@ -74,23 +251,38 @@ class BaseProvider(ABC):
             "image_url": match.image_url,
             "external_id": match.external_id,
             "normalized_name": match.name,
+            "unit": match.unit,
+            "brand": match.brand,
         }
 
     @staticmethod
-    def _best_match(query: str, results: list[ProviderProduct]) -> Optional[ProviderProduct]:
-        q = query.lower().strip()
-        for item in results:
-            if item.name.lower().strip() == q:
-                return item
+    def _best_match(
+        query: str,
+        results: list[ProviderProduct],
+        *,
+        barcode: Optional[str] = None,
+        brand: Optional[str] = None,
+        catalog_unit: Optional[str] = None,
+    ) -> Optional[ProviderProduct]:
+        if barcode:
+            for item in results:
+                if item.barcode and item.barcode == barcode:
+                    return item
 
-        # Token overlap score
-        q_tokens = set(q.split())
-
-        def score(item: ProviderProduct) -> int:
-            name_tokens = set(item.name.lower().split())
-            return len(q_tokens & name_tokens)
+        def score(item: ProviderProduct) -> float:
+            item_unit = extract_unit(item.unit or "") or extract_unit(item.name)
+            return fuzzy_score(
+                query,
+                item.name,
+                brand=brand,
+                candidate_brand=item.brand,
+                catalog_unit=catalog_unit,
+                candidate_unit=item_unit,
+            )
 
         ranked = sorted(results, key=score, reverse=True)
-        if ranked and score(ranked[0]) > 0:
-            return ranked[0]
-        return ranked[0] if ranked else None
+        if not ranked:
+            return None
+        if score(ranked[0]) < 0.15:
+            return None
+        return ranked[0]

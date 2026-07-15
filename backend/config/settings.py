@@ -89,9 +89,14 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_PAGINATION_CLASS": "common.pagination.FlexiblePagination",
     "PAGE_SIZE": 48,
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+    ],
     "DEFAULT_THROTTLE_RATES": {
         "anon": "120/min",
         "user": "300/min",
+        "alert_create": "20/hour",
     },
 }
 
@@ -174,18 +179,45 @@ PROVIDER_MODE = os.getenv("PROVIDER_MODE", "hybrid")  # fake | hybrid | live
 PROVIDER_TIMEOUT = int(os.getenv("PROVIDER_TIMEOUT", "8"))
 PROVIDER_MAX_RETRIES = int(os.getenv("PROVIDER_MAX_RETRIES", "2"))
 PROVIDER_RATE_LIMIT_PER_MINUTE = int(os.getenv("PROVIDER_RATE_LIMIT_PER_MINUTE", "30"))
+PROVIDER_CACHE_TTL = int(os.getenv("PROVIDER_CACHE_TTL", "600"))
+PROVIDER_USE_PLAYWRIGHT = os.getenv("PROVIDER_USE_PLAYWRIGHT", "True").lower() in (
+    "1",
+    "true",
+    "yes",
+)
+PROVIDER_LATITUDE = float(os.getenv("PROVIDER_LATITUDE", "28.6139"))
+PROVIDER_LONGITUDE = float(os.getenv("PROVIDER_LONGITUDE", "77.2090"))
+
+# Optional paid aggregators (never expose these to the frontend)
+QUICKCOMMERCE_API_KEY = os.getenv("QUICKCOMMERCE_API_KEY", "")
+PARSE_API_KEY = os.getenv("PARSE_API_KEY", "")
+FOODSPARK_API_KEY = os.getenv("FOODSPARK_API_KEY", "")
 
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
 
-# LocMem keeps the app bootable without Redis; Celery still uses Redis as broker.
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "pricepulse-local",
-        "TIMEOUT": 300,
+# Prefer Redis when available so web + celery share provider cache / rate limits.
+_use_redis_cache = os.getenv("USE_REDIS_CACHE", "True").lower() in ("1", "true", "yes")
+if _use_redis_cache:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": os.getenv(
+                "REDIS_CACHE_URL",
+                f"redis://{REDIS_HOST}:{REDIS_PORT}/1",
+            ),
+            "KEY_PREFIX": "pricepulse",
+            "TIMEOUT": 300,
+        }
     }
-}
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "pricepulse-local",
+            "TIMEOUT": 300,
+        }
+    }
 
 EMAIL_BACKEND = os.getenv(
     "EMAIL_BACKEND",
@@ -225,3 +257,14 @@ LOGGING = {
         },
     },
 }
+
+# Production hardening (enabled when DEBUG=False)
+if not DEBUG:
+    if SECRET_KEY.startswith("django-insecure-") or SECRET_KEY == "dev-secret-key-change-in-production":
+        raise RuntimeError("Refusing to start with an insecure SECRET_KEY when DEBUG=False")
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = "DENY"
+

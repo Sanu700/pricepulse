@@ -1,0 +1,247 @@
+{
+  "title": "Buy amul butter Online | blinkit",
+  "text_snip": "Welcome to blinkit\nPlease provide your delivery location to see products at nearby store\nDetect my location\nOR\n!\np\nr\nMy Cart\nAmul butter\nAmul buttermilk\nAmul butterscotch ice cream cone\nAmul butter cookies\nButterscotch amul\nShowing results for \"amul butter\"\n5% OFF\n8 MINS\nNutralite DoodhShakti Probiotic Butter\n100 g\n\u20b957\n\u20b960\nADD\n8 MINS\nAmul Salted Butter\n100 g\n\u20b963\nADD\n8 MINS\nAmul Salted Butter (200 g)\n200 g\n\u20b9130\nADD\n8 MINS\nAmul Garlic & Herbs Butter\n100 g\n\u20b975\nADD\n7% OFF\n8 MINS\nNutralite DoodhShakti Probiotic Butter (500 g)\n500 g\n\u20b9267\n\u20b9290\nADD\n8 MINS\nAmul Salted Butter (Chiplets)\n100 g\n\u20b980\nADD\n8 ",
+  "captured_count": 49,
+  "captured": [
+    {
+      "url": "https://blinkit.com/7225.scripts/layout.e83ab3a001bba003e015.js",
+      "status": 200,
+      "content_type": "application/javascript",
+      "body_preview": "/*! For license information please see layout.e83ab3a001bba003e015.js.LICENSE.txt */ \"use strict\";(self.webpackChunk=self.webpackChunk||[]).push([[7225],{14017:(e,t,a)=>{var o=a(7914);Object.defineProperty(t,\"__esModule\",{value:!0}),t.default=void 0;var n=o(a(27378)),l=o(a(47892)),i=a(77897),r=l.default.div.withConfig({displayName:\"EditModal__EditC"
+    },
+    {
+      "url": "https://blinkit.com/9398.scripts/layout-/home-/shell-/ProductsWrapper-/pdp-/tab-layout-/store-/recipe-/wallet-/OrderTrack-/categories-/recipes-/brands-/cart-/checkout-/WidgetisedLayout-/checkoutWallet-/paan-/UnsubscribeCT-/AirtelRedirectionPage-/print-/bill-view-/paymentRedirect-/ambulance-/notFound-.1f4cc9e0fba0a28540f6.js",
+      "status": 200,
+      "content_type": "application/javascript",
+      "body_preview": "(self.webpackChunk=self.webpackChunk||[]).push([[9398],{44439:(e,t,r)=>{\"use strict\";r.d(t,{Z:()=>a});var n=r(82015),i=/^((children|dangerouslySetInnerHTML|key|ref|autoFocus|defaultValue|defaultChecked|innerHTML|suppressContentEditableWarning|suppressHydrationWarning|valueLink|abbr|accept|acceptCharset|accessKey|action|allow|allowUserMedia|allowPay"
+    },
+    {
+      "url": "https://blinkit.com/701.scripts/layout-/home-/ProductsWrapper-/store-/recipe-/wallet-/OrderTrack-/WidgetisedLayout-/paan-/print-.f89e0512290f5cc6c4b3.js",
+      "status": 200,
+      "content_type": "application/javascript",
+      "body_preview": "/*! For license information please see print-.f89e0512290f5cc6c4b3.js.LICENSE.txt */ \"use strict\";(self.webpackChunk=self.webpackChunk||[]).push([[701],{2504:(e,n)=>{function t(){return t=Object.assign?Object.assign.bind():function(e){for(var n=1;n<arguments.length;n++){var t=arguments[n];for(var o in t)Object.prototype.hasOwnProperty.call(t,o)&&(e"
+    },
+    {
+      "url": "https://blinkit.com/7992.scripts/layout-/home-/pdp-/tab-layout-/store-/wallet-/cart-/WidgetisedLayout-/paan-/print-.92236faf1fdb441c674f.js",
+      "status": 200,
+      "content_type": "application/javascript",
+      "body_preview": "\"use strict\";(self.webpackChunk=self.webpackChunk||[]).push([[7992],{17275:(e,t,n)=>{var r=n(7914);Object.defineProperty(t,\"__esModule\",{value:!0}),t.default=void 0;var o,i,a,l,s,d=function(e,t){if(e&&e.__esModule)return e;if(null===e||\"object\"!=typeof e&&\"function\"!=typeof e)return{default:e};var n=w(t);if(n&&n.has(e))return n.get(e);var r={},o=Ob"
+    },
+    {
+      "url": "https://blinkit.com/1017.scripts/layout-/home-/ProductsWrapper-/pdp-/tab-layout-/store-/recipe-/wallet-/OrderTrack-/cart-/checkout-/WidgetisedLayout-/paan-/print-.ecd257c1e695fc22bb22.js",
+      "status": 200,
+      "content_type": "application/javascript",
+      "body_preview": "/*! For license information please see print-.ecd257c1e695fc22bb22.js.LICENSE.txt */ (self.webpackChunk=self.webpackChunk||[]).push([[1017],{2398:e=>{function t(){return e.exports=t=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var n=arguments[t];for(var o in n)Object.prototype.hasOwnProperty.call(n,o)&&(e[o]=n[o])}return e},e.expo"
+    },
+    {
+      "url": "https://blinkit.com/9501.scripts/layout-/wallet-/cart-.176dbf316e45db759bb9.js",
+      "status": 200,
+      "content_type": "application/javascript",
+      "body_preview": "/*! For license information please see cart-.176dbf316e45db759bb9.js.LICENSE.txt */ (self.webpackChunk=self.webpackChunk||[]).push([[9501],{66480:(e,t,n)=>{\"use strict\";var o=n(7914);Object.defineProperty(t,\"__esModule\",{value:!0}),t.default=t.setLocationSource=t.toggleServiceability=t.toggleDistanceWarning=t.setPlaceOnMap=t.getDistance=t.hideLocat"
+    },
+    {
+      "url": "https://blinkit.com/847.scripts/layout-/wallet-/cart-/checkout-.61552b64fa9b7cdfffed.js",
+      "status": 200,
+      "content_type": "application/javascript",
+      "body_preview": "/*! For license information please see checkout-.61552b64fa9b7cdfffed.js.LICENSE.txt */ \"use strict\";(self.webpackChunk=self.webpackChunk||[]).push([[847],{4427:(e,t,u)=>{Object.defineProperty(t,\"__esModule\",{value:!0});var n=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var u=arguments[t];for(var n in u)Object.prototype.hasOwnProp"
+    },
+    {
+      "url": "https://blinkit.com/5465.scripts/layout-/home-/ProductsWrapper-/pdp-/tab-layout-/store-/wallet-/cart-/WidgetisedLayout-/paan-/print-.89385e875e8344b9d456.js",
+      "status": 200,
+      "content_type": "application/javascript",
+      "body_preview": "\"use strict\";(self.webpackChunk=self.webpackChunk||[]).push([[5465],{63431:(e,t,n)=>{Object.defineProperty(t,\"__esModule\",{value:!0}),t.default=void 0;var i=n(27378);t.default=function(e,t){var n=t.threshold,r=void 0===n?0:n,E=t.root,a=void 0===E?null:E,o=t.rootMargin,_=void 0===o?\"0%\":o,s=t.freezeOnceVisible,d=void 0!==s&&s,l=(0,i.useState)(),I=l["
+    },
+    {
+      "url": "https://blinkit.com/7363.scripts/layout-/ProductsWrapper-/assistCart-/pdp-/tab-layout-/recipe-/print-/ambulance-.4e7395cc6adda2b730ff.js",
+      "status": 200,
+      "content_type": "application/javascript",
+      "body_preview": "(self.webpackChunk=self.webpackChunk||[]).push([[7363],{54335:e=>{\"use strict\";var t=Array.isArray,n=Object.keys,r=Object.prototype.hasOwnProperty,o=\"undefined\"!=typeof Element;function i(e,a){if(e===a)return!0;if(e&&a&&\"object\"==typeof e&&\"object\"==typeof a){var u,c,T,s=t(e),l=t(a);if(s&&l){if((c=e.length)!=a.length)return!1;for(u=c;0!=u--;)if(!i("
+    },
+    {
+      "url": "https://blinkit.com/3789.scripts/layout-/pdp-/wallet-/OrderTrack-/cart-/checkout-.e29e7a3a8a0486d68e63.js",
+      "status": 200,
+      "content_type": "application/javascript",
+      "body_preview": "\"use strict\";(self.webpackChunk=self.webpackChunk||[]).push([[3789],{85289:(e,t,o)=>{Object.defineProperty(t,\"__esModule\",{value:!0}),t.receiveSecondaryData=t.default=void 0;var n=o(78552),a=e=>({type:\"RECEIVE_SECONDARY_DATA\",secondaryData:e});t.receiveSecondaryData=a;t.default=(e,t)=>o=>{var l=null!=e&&null!=t?{lat:e,lon:t}:{};return o((0,n.fetchA"
+    },
+    {
+      "url": "https://blinkit.com/9879.scripts/layout-/home-/ProductsWrapper-/pdp-/tab-layout-/store-/recipe-/wallet-/OrderTrack-/cart-/checkout-/WidgetisedLayout-/checkoutWallet-/paan-/print-.345ebbe478ff5ec1634a.js",
+      "status": 200,
+      "content_type": "application/javascript",
+      "body_preview": "\"use strict\";(self.webpackChunk=self.webpackChunk||[]).push([[9879],{43701:(e,t,a)=>{var r=a(7914);Object.defineProperty(t,\"__esModule\",{value:!0}),t.applyCashPayment=t.selectBank=t.selectCard=t.selectWallet=t.setCheckoutState=t.cancelPayment=t.reInitPayment=t.clearPromoCodeState=t.applyPromoCode=t.applyGrofersCash=t.initPayment=t.getCardsFromPayu="
+    },
+    {
+      "url": "https://blinkit.com/148.scripts/layout-/home-/pdp-/store-/wallet-/cart-/WidgetisedLayout-/paan-/print-.1b13f98ce785c792cee5.js",
+      "status": 200,
+      "content_type": "application/javascript",
+      "body_preview": "/*! For license information please see print-.1b13f98ce785c792cee5.js.LICENSE.txt */ (self.webpackChunk=self.webpackChunk||[]).push([[148],{17094:(e,t)=>{\"use strict\";t.Z=function(e,t){if(e&&t){var n=Array.isArray(t)?t:t.split(\",\"),i=e.name||\"\",a=(e.type||\"\").toLowerCase(),r=a.replace(/\\/.*$/,\"\");return n.some((function(e){var t=e.trim().toLowerCas"
+    },
+    {
+      "url": "https://blinkit.com/1737.scripts/layout-/store-/paan-/print-.0be3c2f3128508e98d99.js",
+      "status": 200,
+      "content_type": "application/javascript",
+      "body_preview": "\"use strict\";(self.webpackChunk=self.webpackChunk||[]).push([[1737],{6600:(e,t,l)=>{var n=l(7914);Object.defineProperty(t,\"__esModule\",{value:!0}),t.default=void 0;var r=n(l(27378));t.default=function(e){var t=e.onClick;return r.default.createElement(\"div\",{className:\"error-container-widget\"},r.default.createElement(\"div\",{className:\"heading\"},\"Oop"
+    },
+    {
+      "url": "https://blinkit.com/8721.scripts/layout-/OrderTrack-.51ec23690625c98ef353.js",
+      "status": 200,
+      "content_type": "application/javascript",
+      "body_preview": "/*! For license information please see OrderTrack-.51ec23690625c98ef353.js.LICENSE.txt */ (self.webpackChunk=self.webpackChunk||[]).push([[8721],{26032:(e,t,r)=>{\"use strict\";r.r(t),r.d(t,{DEFAULT_ID:()=>n,Loader:()=>l,LoaderStatus:()=>i});var a=function e(t,r){if(t===r)return!0;if(t&&r&&\"object\"==typeof t&&\"object\"==typeof r){if(t.constructor!==r."
+    },
+    {
+      "url": "https://blinkit.com/433.scripts/layout-/wallet-/OrderTrack-.5166a8e25fd96ac1ae87.js",
+      "status": 200,
+      "content_type": "application/javascript",
+      "body_preview": "\"use strict\";(self.webpackChunk=self.webpackChunk||[]).push([[433],{94964:(e,t,a)=>{var n=a(7914);Object.defineProperty(t,\"__esModule\",{value:!0}),t.setBffPageAttributes=t.bffPageTracking=void 0;var i=a(11719),r=a(51345),l=n(a(80857)),o=a(45613);t.bffPageTracking=function(e,t){return void 0===t&&(t=!0),(a,n)=>{var o,u,s,d=n().data.analyticsAttribut"
+    },
+    {
+      "url": "https://blinkit.com/4717.scripts/ProductsWrapper-.b6c24b15564f6dc6fa63.js",
+      "status": 200,
+      "content_type": "application/javascript",
+      "body_preview": "/*! For license information please see ProductsWrapper-.b6c24b15564f6dc6fa63.js.LICENSE.txt */ (self.webpackChunk=self.webpackChunk||[]).push([[4717],{13512:function(e,t){var n,r;n=function(){return function(e,t){t=t||{};var n,r=window,i={clamp:t.clamp||2,useNativeClamp:void 0===t.useNativeClamp||t.useNativeClamp,splitOnChars:t.splitOnChars||[\".\",\""
+    },
+    {
+      "url": "https://blinkit.com/9737.scripts/layout-/home-/ProductsWrapper-/pdp-/store-/wallet-/cart-/WidgetisedLayout-/paan-/print-.a8d22cd267ba03f28848.js",
+      "status": 200,
+      "content_type": "application/javascript",
+      "body_preview": "\"use strict\";(self.webpackChunk=self.webpackChunk||[]).push([[9737],{90386:(e,t,a)=>{Object.defineProperty(t,\"__esModule\",{value:!0});var n=a(61161);Object.keys(n).forEach((function(e){\"default\"!==e&&\"__esModule\"!==e&&(e in t&&t[e]===n[e]||Object.defineProperty(t,e,{enumerable:!0,get:function(){return n[e]}}))}))},61161:(e,t)=>{Object.definePropert"
+    },
+    {
+      "url": "https://blinkit.com/424.scripts/layout-/home-/ProductsWrapper-/pdp-/tab-layout-/store-/recipe-/wallet-/OrderTrack-/cart-/WidgetisedLayout-/paan-/print-.2042850c95df60587bf6.js",
+      "status": 200,
+      "content_type": "application/javascript",
+      "body_preview": "\"use strict\";(self.webpackChunk=self.webpackChunk||[]).push([[424],{51345:(e,t,a)=>{var r=a(7914);Object.defineProperty(t,\"__esModule\",{value:!0}),t.impressionEvent=i,t.useTrackingDispatcher=void 0;var n=a(27378),o=r(a(20763)),l=a(77897);function i(e,t,a,r,n){o.default.track(e,t,a,r,n)}t.useTrackingDispatcher=()=>{var e=(0,l.useDispatch)();return(0"
+    },
+    {
+      "url": "https://blinkit.com/1807.scripts/ProductsWrapper.e16fa48dc331997ba5cf.js",
+      "status": 200,
+      "content_type": "application/javascript",
+      "body_preview": "\"use strict\";(self.webpackChunk=self.webpackChunk||[]).push([[1807],{94964:(e,t,n)=>{var a=n(7914);Object.defineProperty(t,\"__esModule\",{value:!0}),t.setBffPageAttributes=t.bffPageTracking=void 0;var l=n(11719),i=n(51345),r=a(n(80857)),o=n(45613);t.bffPageTracking=function(e,t){return void 0===t&&(t=!0),(n,a)=>{var o,d,c,u=a().data.analyticsAttribu"
+    },
+    {
+      "url": "https://blinkit.com/1356.scripts/layout-/home-/ProductsWrapper-/pdp-/tab-layout-/store-/recipe-/wallet-/OrderTrack-/cart-/WidgetisedLayout-/paan-/print-/ambulance-.8cf0f67db61482bba07a.js",
+      "status": 200,
+      "content_type": "application/javascript",
+      "body_preview": "/*! For license information please see ambulance-.8cf0f67db61482bba07a.js.LICENSE.txt */ (self.webpackChunk=self.webpackChunk||[]).push([[1356],{15600:e=>{e.exports=function(e,t){if(null==e)return{};var r,i,a={},s=Object.keys(e);for(i=0;i<s.length;i++)r=s[i],t.indexOf(r)>=0||(a[r]=e[r]);return a},e.exports.default=e.exports,e.exports.__esModule=!0}"
+    },
+    {
+      "url": "https://blinkit.com/1615.scripts/layout-.080dfba37d4b65f44a29.js",
+      "status": 200,
+      "content_type": "application/javascript",
+      "body_preview": "/*! For license information please see layout-.080dfba37d4b65f44a29.js.LICENSE.txt */ (self.webpackChunk=self.webpackChunk||[]).push([[1615],{71803:(__unused_webpack_module,__webpack_exports__,__webpack_require__)=>{\"use strict\";__webpack_require__.r(__webpack_exports__),__webpack_require__.d(__webpack_exports__,{Controls:()=>Controls,Player:()=>Pl"
+    },
+    {
+      "url": "https://blinkit.com/v2/services/secondary-data?filter=new_offer,show_product_group_sharing,is_new_user,cart_ab_test_variant,city_id,sku_auto_add,cart_banner_image,show_referral_login,product_sku_limit&offers_last_visit_ts=0",
+      "status": 301,
+      "content_type": "text/html; charset=utf-8",
+      "body_preview": ""
+    },
+    {
+      "url": "https://blinkit.com/v1/layout/empty_search",
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "body_preview": "{\"is_success\":true,\"response\":{\"snippets\":[{\"data\":{\"identity\":{\"id\":\"recent_searches_pill_container\"},\"items\":[{\"data\":{\"title\":{\"text\":\"Recent searches\",\"color\":{\"type\":\"black\",\"tint\":\"900\"},\"font\":{\"size\":\"500\",\"weight\":\"extrabold\"}},\"right_button\":{\"text\":\"clear\",\"color\":{\"type\":\"green\",\"tint\":\"700\"},\"click_action\":{\"clear_cache\":{\"db_identifie"
+    },
+    {
+      "url": "https://blinkit.com/v2/services/secondary-data/?filter=new_offer,show_product_group_sharing,is_new_user,cart_ab_test_variant,city_id,sku_auto_add,cart_banner_image,show_referral_login,product_sku_limit&offers_last_visit_ts=0",
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "body_preview": "{\"additional_charges_config\":null,\"analytics_properties\":{\"merchant_id\":31719,\"merchant_name\":null,\"city_id\":1849,\"city_name\":\"HR-NCR\",\"chain_id\":1383,\"min_order\":null,\"delivery_type\":null,\"services\":{\"merchants\":[{\"id\":\"31719\",\"type\":\"express\"},{\"id\":\"31719\",\"type\":\"longtail\"},{\"id\":\"31719\",\"type\":\"unicorn\"},{\"id\":\"46421\",\"type\":\"super_longtail\"},"
+    },
+    {
+      "url": "https://blinkit.com/v1/layout/search?q=amul%20butter&search_type=type_to_search",
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "body_preview": "{\"is_success\":true,\"response\":{\"snippets\":[{\"data\":{\"identity\":{\"id\":\"product_container\"},\"title\":{\"text\":\"Showing results for \\\"amul butter\\\"\",\"color\":{\"type\":\"black\",\"tint\":\"900\"},\"font\":{\"size\":\"400\",\"weight\":\"bold\"},\"number_of_lines\":2},\"bg_color\":\"#F4F6FB\",\"padding\":\"0,6,0,6\"},\"widget_type\":\"image_text_vr_type_header\",\"layout_config\":{\"spacing"
+    },
+    {
+      "url": "https://blinkit.com/v1/layout/tag_collections",
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "body_preview": "{\"CategoryCollectionsMap\":{\"hpc_beauty_and_care\":{\"DisplayName\":\"Beauty \\u0026 Personal Care\",\"Collection\":[{\"id\":231389,\"boost_product_ids\":null,\"name\":\"hpc_bath and body\",\"display_name\":\"Bath \\u0026 Body\",\"description\":\"\",\"uuid\":\"OTg3NjU0MzIxMjM0NTMzNDY=\",\"group_by\":\"\",\"sort_by\":\"bestsellers\",\"show_filters\":true,\"enabled_flag\":true,\"created_at\":\""
+    },
+    {
+      "url": "https://blinkit.com/v1/layout/search?offset=12&limit=12&actual_query=amul+butter&last_snippet_type=product_card_snippet_type_2&last_widget_type=listing_container&page_index=1&q=amul+butter&search_count=19&search_method=basic&search_type=type_to_search&tab_position=0&total_entities_processed=1&total_pagination_items=19",
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "body_preview": "{\"is_success\":true,\"response\":{\"snippets\":[{\"data\":{\"identity\":{\"id\":\"544081\"},\"section_count\":2,\"layout_type\":\"grid\",\"bg_color\":{\"type\":\"indigo\",\"tint\":\"050\"},\"click_action\":{\"blinkit_deeplink\":{\"url\":\"grofers://pdp?product_id=544081\\u0026merchant_id=31719\\u0026previous_page=search\\u0026npr_flag=PRODUCT_RECOMMENDATION\\u0026product_index=12\"},\"type"
+    },
+    {
+      "url": "https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/da/cms-assets/cms/product/627b47c7-e3eb-4f9e-a6eb-7662954c7627.png",
+      "status": 200,
+      "content_type": "image/avif",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/da/cms-assets/cms/product/rc-upload-1781162984814-27.png",
+      "status": 200,
+      "content_type": "image/avif",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=90/da/cms-assets/cms/product/rc-upload-1781155438653-138.png?dpr_multiplier=3.00",
+      "status": 200,
+      "content_type": "image/avif",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/da/cms-assets/cms/product/rc-upload-1769779424274-1188.png",
+      "status": 200,
+      "content_type": "image/avif",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/da/cms-assets/cms/product/rc-upload-1781162984814-37.png",
+      "status": 200,
+      "content_type": "image/avif",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/da/cms-assets/cms/product/76a28c0d-0821-40a3-9e5f-8f073ddc5694.png",
+      "status": 200,
+      "content_type": "image/avif",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/da/cms-assets/cms/product/rc-upload-1781231417091-271.png",
+      "status": 200,
+      "content_type": "image/avif",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/da/cms-assets/cms/product/5981f9ee-7eb8-4ec3-8467-82f6d206de7d.png",
+      "status": 200,
+      "content_type": "image/avif",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/da/cms-assets/cms/product/9cf3d236-7c03-463d-b568-0f887156a01f.png",
+      "status": 200,
+      "content_type": "image/avif",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=90/da/cms-assets/cms/product/rc-upload-1769779424274-1188.png?dpr_multiplier=3.00",
+      "status": 200,
+      "content_type": "image/avif",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=90/da/cms-assets/cms/product/a8bdf605-84b1-4664-97ac-4a61603b3cac.png?dpr_multiplier=3.00",
+      "status": 200,
+      "content_type": "image/avif",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/da/cms-assets/cms/product/e96cc467-96c4-4494-80a4-8f140d141882.png",
+      "status": 200,
+      "content_type": "image/avif",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/da/cms-assets/cms/product/rc-upload-1781162984814-40.png",
+      "status": 200,
+      "content_type": "image/avif",
+      "body_preview": ""
+    }
+  ]
+}

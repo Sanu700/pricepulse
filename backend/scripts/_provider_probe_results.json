@@ -1,0 +1,74 @@
+[
+  {
+    "name": "blinkit_layout_search",
+    "url": "https://blinkit.com/v1/layout/search?q=amul+butter&search_type=type_to_search",
+    "status": 403,
+    "content_type": "text/html; charset=UTF-8",
+    "body_preview": " <!DOCTYPE html> <html lang=\"en\" dir=\"ltr\"   prefix=\"content: http://purl.org/rss/1.0/modules/content/  dc: http://purl.org/dc/terms/  foaf: http://xmlns.com/foaf/0.1/  og: http://ogp.me/ns#  rdfs: http://www.w3.org/2000/01/rdf-schema#  schema: http://schema.org/  sioc: http://rdfs.org/sioc/ns#  sioct: http://rdfs.org/sioc/types#  skos: http://www.w3.org/2004/02/skos/core#  xsd: http://www.w3.org/",
+    "ok_json": false
+  },
+  {
+    "name": "blinkit_api2_search",
+    "url": "https://api2.grofers.com/v1/layout/search?q=milk",
+    "status": 403,
+    "content_type": "text/html; charset=UTF-8",
+    "body_preview": "<!DOCTYPE html> <!--[if lt IE 7]> <html class=\"no-js ie6 oldie\" lang=\"en-US\"> <![endif]--> <!--[if IE 7]>    <html class=\"no-js ie7 oldie\" lang=\"en-US\"> <![endif]--> <!--[if IE 8]>    <html class=\"no-js ie8 oldie\" lang=\"en-US\"> <![endif]--> <!--[if gt IE 8]><!--> <html class=\"no-js\" lang=\"en-US\"> <!--<![endif]--> <head> <title>Attention Required! | Cloudflare</title> <meta charset=\"UTF-8\" /> <meta",
+    "ok_json": false
+  },
+  {
+    "name": "blinkit_listing",
+    "url": "https://api.grofers.com/v1/layout/listing",
+    "status": 403,
+    "content_type": "text/html; charset=UTF-8",
+    "body_preview": "<!DOCTYPE html> <!--[if lt IE 7]> <html class=\"no-js ie6 oldie\" lang=\"en-US\"> <![endif]--> <!--[if IE 7]>    <html class=\"no-js ie7 oldie\" lang=\"en-US\"> <![endif]--> <!--[if IE 8]>    <html class=\"no-js ie8 oldie\" lang=\"en-US\"> <![endif]--> <!--[if gt IE 8]><!--> <html class=\"no-js\" lang=\"en-US\"> <!--<![endif]--> <head> <title>Attention Required! | Cloudflare</title> <meta charset=\"UTF-8\" /> <meta",
+    "ok_json": false
+  },
+  {
+    "name": "blinkit_deeplink",
+    "url": "https://blinkit.com/v2/search/deeplink?q=milk",
+    "status": 403,
+    "content_type": "text/html; charset=UTF-8",
+    "body_preview": " <!DOCTYPE html> <html lang=\"en\" dir=\"ltr\"   prefix=\"content: http://purl.org/rss/1.0/modules/content/  dc: http://purl.org/dc/terms/  foaf: http://xmlns.com/foaf/0.1/  og: http://ogp.me/ns#  rdfs: http://www.w3.org/2000/01/rdf-schema#  schema: http://schema.org/  sioc: http://rdfs.org/sioc/ns#  sioct: http://rdfs.org/sioc/types#  skos: http://www.w3.org/2004/02/skos/core#  xsd: http://www.w3.org/",
+    "ok_json": false
+  },
+  {
+    "name": "zepto_v2_search",
+    "url": "https://api.zepto.co.in/api/v2/search?query=amul+butter&pageNumber=0",
+    "status": 404,
+    "content_type": "text/plain; charset=utf-8",
+    "body_preview": "",
+    "ok_json": false
+  },
+  {
+    "name": "zepto_bff_search",
+    "url": "https://bff-gateway.zepto.com/user-search-service/api/v3/search",
+    "status": 429,
+    "content_type": "",
+    "body_preview": "",
+    "ok_json": false
+  },
+  {
+    "name": "zepto_www_search",
+    "url": "https://www.zepto.com/search?query=milk",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "body_preview": "<!DOCTYPE html><html class=\"font-mweb lg:font-desktop\" lang=\"en\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover\"/><link rel=\"stylesheet\" href=\"https://cdn.zeptonow.com/web-static-assets-prod/artifacts/16.14.0/_next/static/css/338c4b2c65f05534.css\" data-precedence=\"next\"/><link rel=\"stylesheet\" href=\"https://cdn.z",
+    "ok_json": false
+  },
+  {
+    "name": "quickcommerce_search_nokey",
+    "url": "https://api.quickcommerceapi.com/v1/search?q=amul&lat=12.9716&lon=77.5946&platform=BlinkIt",
+    "status": 401,
+    "content_type": "application/json",
+    "body_preview": "{\"detail\":\"API key required. Pass via X-API-Key header or ?api_key= query param\"}",
+    "ok_json": false
+  },
+  {
+    "name": "openfoodfacts_search",
+    "url": "https://world.openfoodfacts.org/cgi/search.pl?search_terms=amul+butter&search_simple=1&action=process&json=1&page_size=3",
+    "status": 503,
+    "content_type": "text/html",
+    "body_preview": "<!DOCTYPE html> <html lang=\"en\">  <head>     <meta charset=\"UTF-8\">     <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">     <title>Page temporarily unavailable - Open Food Facts</title>     <style>         * {             margin: 0;             padding: 0;             box-sizing: border-box;         }          body {             font-family: -apple-system, BlinkMacSystemFont",
+    "ok_json": false
+  }
+]

@@ -6,6 +6,7 @@ from .models import NotificationLog, PriceAlert
 
 
 class AlertCreateThrottle(throttling.AnonRateThrottle):
+    scope = "alert_create"
     rate = "20/hour"
 
 
@@ -25,10 +26,22 @@ class PriceAlertSerializer(serializers.ModelSerializer):
             "created_at",
         ]
         read_only_fields = ["last_triggered_at", "created_at"]
+        extra_kwargs = {
+            "email": {"write_only": True, "required": False, "allow_blank": True},
+        }
 
-    def validate_email(self, value):
-        # Guests may omit email; authenticated users can rely on account email.
-        return value.strip() if value else ""
+    def validate(self, attrs):
+        request = self.context.get("request")
+        user = getattr(request, "user", None) if request else None
+        email = (attrs.get("email") or "").strip()
+        attrs["email"] = email
+
+        # Guests must provide an email; authenticated users may use account email.
+        if (not user or not user.is_authenticated) and not email:
+            raise serializers.ValidationError(
+                {"email": "Email is required for guest price alerts."}
+            )
+        return attrs
 
 
 class PriceAlertListCreateAPIView(generics.ListCreateAPIView):
@@ -38,15 +51,11 @@ class PriceAlertListCreateAPIView(generics.ListCreateAPIView):
     throttle_classes = [AlertCreateThrottle]
 
     def get_queryset(self):
-        # Only return the caller's alerts (auth) or filter by product for guests.
         qs = PriceAlert.objects.select_related("product").filter(is_active=True)
         user = self.request.user
         if user.is_authenticated:
             return qs.filter(user=user)
-        product = self.request.query_params.get("product")
-        if product:
-            # Guests can list alerts for a product they just created — by product id only
-            return qs.filter(product_id=product, user__isnull=True)[:5]
+        # Guests cannot list others' alerts (prevents email leakage).
         return qs.none()
 
     def perform_create(self, serializer):

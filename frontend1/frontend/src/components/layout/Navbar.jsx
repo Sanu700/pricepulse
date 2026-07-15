@@ -102,7 +102,7 @@ function Navbar() {
               className="btn-ghost hidden sm:inline-flex"
             >
               <LogOut size={16} />
-              <span className="text-sm">Logout</span>
+              <span className="text-sm">{isGuest ? "Exit guest" : "Logout"}</span>
             </button>
           )}
           <button

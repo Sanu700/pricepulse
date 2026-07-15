@@ -50,13 +50,18 @@ class Product(BaseModel):
         null=True,
     )
 
+    # Remote URL from providers (preferred for catalog when no uploaded file).
+    image_url = models.URLField(max_length=500, blank=True, null=True)
+
     description = models.TextField(
         blank=True
     )
 
-    
     class Meta:
         ordering = ["name"]
+        indexes = [
+            models.Index(fields=["name"]),
+        ]
 
     def __str__(self):
         return self.name

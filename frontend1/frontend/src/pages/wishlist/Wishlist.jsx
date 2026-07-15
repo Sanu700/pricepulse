@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Bell, Trash2, Package } from "lucide-react";
+import { Heart, Bell, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useWishlist } from "../../hooks/useWishlist";
 import { createPriceAlert } from "../../services/authService";
 import EmptyState from "../../components/common/EmptyState";
+import ProductImage from "../../components/common/ProductImage";
 
 function AlertModal({ product, onClose }) {
   const [threshold, setThreshold] = useState(
@@ -17,6 +18,10 @@ function AlertModal({ product, onClose }) {
   async function save() {
     if (!threshold) {
       toast.error("Enter a target price");
+      return;
+    }
+    if (!email.trim()) {
+      toast.error("Enter an email so we can notify you");
       return;
     }
     setSaving(true);
@@ -42,8 +47,12 @@ function AlertModal({ product, onClose }) {
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4 backdrop-blur-sm"
       onClick={onClose}
+      role="presentation"
     >
       <motion.div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="alert-modal-title"
         initial={{ opacity: 0, scale: 0.96, y: 8 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96 }}
@@ -55,7 +64,7 @@ function AlertModal({ product, onClose }) {
             <Bell size={18} />
           </span>
           <div>
-            <h3 className="font-semibold text-ink">Set a price alert</h3>
+            <h3 id="alert-modal-title" className="font-semibold text-ink">Set a price alert</h3>
             <p className="text-sm text-muted">{product.name}</p>
           </div>
         </div>
@@ -74,7 +83,8 @@ function AlertModal({ product, onClose }) {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email (optional)"
+          placeholder="Email (required)"
+          required
           className="input-field mb-6"
         />
 
@@ -126,11 +136,12 @@ function Wishlist() {
                 className="card p-5"
               >
                 <Link to={`/products/${product.id}`} className="mb-4 flex h-24 items-center justify-center rounded-xl bg-canvas">
-                  {product.image_url ? (
-                    <img src={product.image_url} alt="" className="h-full object-contain p-2" />
-                  ) : (
-                    <Package size={36} className="text-slate-300" />
-                  )}
+                  <ProductImage
+                    src={product.image_url}
+                    alt={product.name}
+                    className="h-full w-full object-contain p-2"
+                    iconSize={36}
+                  />
                 </Link>
                 <h3 className="truncate font-semibold text-ink">{product.name}</h3>
                 <p className="mb-4 truncate text-sm text-muted">{product.brand}</p>

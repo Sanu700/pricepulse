@@ -37,7 +37,7 @@ function StatPill({ icon: Icon, label, value }) {
 function Home() {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
-  const { data: products, isLoading, error } = useProducts();
+  const { data: products, isLoading, error } = useProducts({ page_size: 6 });
   const { data: analytics } = useAnalytics();
   const { data: stores } = useStores();
 

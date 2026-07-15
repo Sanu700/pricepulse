@@ -21,8 +21,8 @@ class CollectorService:
     @staticmethod
     def collect():
         mode = getattr(settings, "PROVIDER_MODE", "hybrid").lower()
-        products = Product.objects.all()
-        stores = Store.objects.all()
+        products = Product.objects.select_related("brand", "category").all()
+        stores = list(Store.objects.all())
         updated = 0
         fallbacks = 0
 

@@ -2,10 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import { getAnalyticsSummary, getStores } from "../services/pricingService";
 import { getProduct, getProducts } from "../services/productService";
 
-export function useProducts(params = {}) {
+export function useProducts(params = {}, options = {}) {
   return useQuery({
     queryKey: ["products", params],
     queryFn: () => getProducts(params),
+    ...options,
   });
 }
 

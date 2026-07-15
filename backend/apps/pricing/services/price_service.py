@@ -1,16 +1,16 @@
 from decimal import Decimal
 
-from apps.pricing.models import CurrentPrice, PriceHistory
 from apps.notifications.services.notification_service import NotificationService
+from apps.pricing.models import CurrentPrice, PriceHistory
 
 
 class PriceService:
-
     @staticmethod
     def update_price(product, store, data):
         new_price = Decimal(str(data["price"]))
         in_stock = bool(data.get("in_stock", True))
         product_url = data.get("product_url")
+        image_url = data.get("image_url")
 
         current_price, created = CurrentPrice.objects.get_or_create(
             product=product,
@@ -40,7 +40,12 @@ class PriceService:
             current_price.in_stock = in_stock
             if product_url:
                 current_price.product_url = product_url
-            current_price.save()
+            current_price.save(update_fields=["price", "in_stock", "product_url", "last_updated"])
+
+        # Persist provider image onto the catalog product when missing
+        if image_url and not product.image_url and not product.image:
+            product.image_url = str(image_url)[:500]
+            product.save(update_fields=["image_url", "updated_at"])
 
         # Avoid flooding history with identical consecutive readings
         last = (

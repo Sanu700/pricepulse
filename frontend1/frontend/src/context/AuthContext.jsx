@@ -1,4 +1,4 @@
-import { createContext, useCallback, useMemo, useState } from "react";
+import { createContext, useCallback, useEffect, useMemo, useState } from "react";
 
 export const AuthContext = createContext();
 
@@ -34,6 +34,23 @@ export function AuthProvider({ children }) {
     setIsGuest(false);
   }, []);
 
+  useEffect(() => {
+    function onRefreshed(e) {
+      const access = e.detail?.access;
+      if (access) setToken(access);
+    }
+    function onExpired() {
+      setToken(null);
+      setIsGuest(false);
+    }
+    window.addEventListener("pricepulse:token-refreshed", onRefreshed);
+    window.addEventListener("pricepulse:session-expired", onExpired);
+    return () => {
+      window.removeEventListener("pricepulse:token-refreshed", onRefreshed);
+      window.removeEventListener("pricepulse:session-expired", onExpired);
+    };
+  }, []);
+
   const value = useMemo(
     () => ({
       token,
@@ -41,6 +58,7 @@ export function AuthProvider({ children }) {
       logout,
       enterGuestMode,
       isGuest,
+      isSignedIn: Boolean(token),
       isAuthenticated: Boolean(token) || isGuest,
     }),
     [token, login, logout, enterGuestMode, isGuest]

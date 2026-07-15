@@ -1,0 +1,153 @@
+{
+  "query": "amul butter",
+  "providers": {
+    "blinkit": {
+      "count": 8,
+      "sample": [
+        {
+          "id": "447847",
+          "name": "Nutralite DoodhShakti Probiotic Butter",
+          "price": "57",
+          "unit": "100 g",
+          "brand": "Nutralite",
+          "in_stock": true
+        },
+        {
+          "id": "159",
+          "name": "Amul Salted Butter",
+          "price": "63",
+          "unit": "100 g",
+          "brand": "Amul",
+          "in_stock": true
+        },
+        {
+          "id": "160",
+          "name": "Amul Salted Butter",
+          "price": "310",
+          "unit": "500 g",
+          "brand": "Amul",
+          "in_stock": true
+        },
+        {
+          "id": "63628",
+          "name": "Amul Salted Butter (200 g)",
+          "price": "130",
+          "unit": "200 g",
+          "brand": "Amul",
+          "in_stock": true
+        },
+        {
+          "id": "55504",
+          "name": "Amul Garlic & Herbs Butter",
+          "price": "75",
+          "unit": "100 g",
+          "brand": "Amul",
+          "in_stock": true
+        },
+        {
+          "id": "447848",
+          "name": "Nutralite DoodhShakti Probiotic Butter (500 g)",
+          "price": "267",
+          "unit": "500 g",
+          "brand": "Nutralite",
+          "in_stock": true
+        },
+        {
+          "id": "32416",
+          "name": "Amul Salted Butter (Chiplets)",
+          "price": "80",
+          "unit": "100 g",
+          "brand": "Amul",
+          "in_stock": true
+        },
+        {
+          "id": "245871",
+          "name": "Amul Unsalted Butter",
+          "price": "63",
+          "unit": "100 g",
+          "brand": "Amul",
+          "in_stock": true
+        }
+      ]
+    },
+    "zepto": {
+      "count": 8,
+      "sample": [
+        {
+          "id": "8da0c985-dc37-495c-a8bd-6019c120cb44",
+          "name": "Amul Salted Butter",
+          "price": "63",
+          "unit": "1 pack (100 g)",
+          "brand": "Amul",
+          "in_stock": true
+        },
+        {
+          "id": "fc2ffbca-a36b-4728-b6be-3168475f3b75",
+          "name": "Amul Salted Butter",
+          "price": "310",
+          "unit": "1 pack (500 g)",
+          "brand": "Amul",
+          "in_stock": true
+        },
+        {
+          "id": "bebc0d21-3d61-49ad-bedc-a7155a5169d3",
+          "name": "Amul Salted Butter",
+          "price": "130",
+          "unit": "1 pack (200 g)",
+          "brand": "Amul",
+          "in_stock": true
+        },
+        {
+          "id": "7457c7d6-26b9-466b-8950-9c1adb6faa9a",
+          "name": "Amul Salted Butter (Chiplets)",
+          "price": "80",
+          "unit": "1 pack (10 x 10 g)",
+          "brand": "Amul",
+          "in_stock": true
+        },
+        {
+          "id": "1685c097-3845-4e73-be56-9910c3391c0c",
+          "name": "Amul Unsalted Cooking Butter",
+          "price": "65",
+          "unit": "1 pack (100 g)",
+          "brand": "Amul",
+          "in_stock": true
+        },
+        {
+          "id": "bb3b57c0-4a26-4c7b-8ff2-9e50ee19bb51",
+          "name": "Amul Garlic & Herbs Buttery Spread",
+          "price": "75",
+          "unit": "1 pack (100 g)",
+          "brand": "Amul",
+          "in_stock": true
+        },
+        {
+          "id": "e600868b-693e-4f8b-ae63-23aade3cb112",
+          "name": "Delicious Fat Spread - Cholesterol Free",
+          "price": "24",
+          "unit": "1 pack (100 g)",
+          "brand": "Amul",
+          "in_stock": true
+        },
+        {
+          "id": "98507230-5aaf-46b3-90c2-69c86786a994",
+          "name": "Delicious Fat Spread - Cholesterol Free",
+          "price": "113",
+          "unit": "1 pack (500 g)",
+          "brand": "Amul",
+          "in_stock": true
+        }
+      ]
+    }
+  },
+  "persisted": {
+    "blinkit": 1,
+    "zepto": 1
+  },
+  "current_prices_total": 36,
+  "history_total": 38,
+  "verified": {
+    "blinkit_live": true,
+    "zepto_live": true
+  }
+}

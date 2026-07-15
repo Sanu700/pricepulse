@@ -34,7 +34,6 @@ class ProductCurrentPricesAPIView(ListAPIView):
 
 class ProductPriceHistoryAPIView(ListAPIView):
     serializer_class = PriceHistorySerializer
-    pagination_class = None
 
     def get_queryset(self):
         product_id = self.kwargs["product_id"]

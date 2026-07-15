@@ -1,0 +1,187 @@
+{
+  "title": "Zepto | Everything delivered in minutes*",
+  "text_snip": "Delivery in minutes*\nSelect Location\nSearch\nLogin\nCart\nYour cart is empty\nShowing results for \"amul butter\"\nADD\n\u20b963\nAmul Salted Butter\n1 pack (100 g)\n4.8\n(803.1k)\nADD\n\u20b9130\nAmul Salted Butter\n1 pack (200 g)\n4.9\n(103.6k)\nADD\n\u20b980\nAmul Salted Butter (Chiplets)\n1 pack (10 x 10 g)\n4.8\n(96.7k)\nADD\n\u20b9310\nAmul Salted Butter\n1 pack (500 g)\n4.7\n(146.1k)\nADD\n\u20b965\nAmul Unsalted Cooking Butter\n1 pack (100 g)\n4.7\n(26.0k)\nADD\n\u20b975\nAmul Garlic & Herbs Buttery Spread\n1 pack (100 g)\n4.8\n(46.1k)\nADD\n\u20b924\n\u20b925\n\u20b91\nOFF\nDel",
+  "captured_count": 37,
+  "captured": [
+    {
+      "url": "https://www.zeptonow.com/search?query=amul%20butter",
+      "status": 301,
+      "content_type": "text/html",
+      "body_preview": ""
+    },
+    {
+      "url": "https://www.zepto.com/search?query=amul%20butter",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "body_preview": "<!DOCTYPE html><html class=\"font-mweb lg:font-desktop\" lang=\"en\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover\"/><link rel=\"stylesheet\" href=\"https://cdn.zeptonow.com/web-static-assets-prod/artifacts/16.14.0/_next/static/css/338c4b2c65f05534.css\" data-precedence=\"next\"/><link rel=\"stylesheet\" href=\"https://cdn.z"
+    },
+    {
+      "url": "https://cdn.zeptonow.com/web-static-assets-prod/artifacts/16.14.0/_next/static/chunks/app/(main)/search/error-e98de9b6030549be.js",
+      "status": 200,
+      "content_type": "text/javascript; charset=utf-8",
+      "body_preview": "(self.webpackChunk_N_E=self.webpackChunk_N_E||[]).push([[18647,39957,41028],{902:(e,E,t)=>{\"use strict\";var n=t(36762);t.o(n,\"RedirectType\")&&t.d(E,{RedirectType:function(){return n.RedirectType}}),t.o(n,\"notFound\")&&t.d(E,{notFound:function(){return n.notFound}}),t.o(n,\"redirect\")&&t.d(E,{redirect:function(){return n.redirect}}),t.o(n,\"useParams\")&&t.d(E,{useParams:function(){return n.useParams}}"
+    },
+    {
+      "url": "https://cdn.zeptonow.com/web-static-assets-prod/artifacts/16.14.0/_next/static/chunks/app/(main)/search/desktop/page-3f2cf0cb0f230bf2.js",
+      "status": 200,
+      "content_type": "text/javascript; charset=utf-8",
+      "body_preview": "(self.webpackChunk_N_E=self.webpackChunk_N_E||[]).push([[27095],{72173:(e,l,s)=>{\"use strict\";s.d(l,{SearchContent:()=>v});var n=s(54568),r=s(99680),t=s(66480),a=s(5367),i=s(902),o=s(7620),d=s(39736),h=s(89032),b=s(58021),m=s(67849);let c=(0,a.default)(()=>Promise.all([s.e(82370),s.e(67904),s.e(79844)]).then(s.bind(s,79844)),{loadableGenerated:{webpack:()=>[79844]},ssr:!0}),u=(0,a.default)(()=>Pro"
+    },
+    {
+      "url": "https://bff-gateway.zepto.com/lms/api/v2/get_page?latitude=12.96902&longitude=77.75395&page_type=HOME&version=v2&show_new_eta_banner=true&page_size=3&enforce_platform_type=DESKTOP",
+      "status": 200,
+      "content_type": "application/json",
+      "body_preview": "{\"endOfPage\":false, \"storeServiceableResponse\":{\"isNightlyStore\":false, \"secondaryStoreIds\":[\"0059ff6a-7eb0-477a-a7f5-69256f2c444b\"], \"serviceable\":true, \"storeId\":\"b4dc8d65-ed2e-4142-81b6-373982b13500\"}, \"pageLayout\":{\"bottomNav\":{\"default\":\"HOME\", \"items\":[{\"activeIcon\":\"https://ik.imagekit.io/jupdt2k6txi/inventory/banner/2ff6905e-f04c-41c3-8295-3df72bfff080.svg\", \"activeIconV2\":\"https://ik.imag"
+    },
+    {
+      "url": "https://bff-gateway.zepto.com/user-search-service/api/v3/search",
+      "status": 200,
+      "content_type": "application/json",
+      "body_preview": "{\"layout\":[{\"widgetId\":\"TITLE_WIDGET\",\"widgetName\":\"SEARCH_TITLE_WIDGET\",\"data\":{\"fetchMode\":\"local\",\"resolver\":{\"useLocal\":false,\"type\":\"title\",\"data\":{\"items\":[],\"title\":\"Showing results for \\\"amul butter\\\"\",\"queryTitle\":\"\",\"searchQuery\":\"amul butter\",\"replacingTerm\":\"\",\"searchKeyInTitle\":\"amul butter\",\"queryId\":null,\"tabIdStoreProductMap\":{},\"subTitle\":null}},\"endOfList\":false},\"viewMeta\":{\"asp"
+    },
+    {
+      "url": "https://bff-gateway.zepto.com/user-search-service/api/v3/search/filters",
+      "status": 200,
+      "content_type": "application/json",
+      "body_preview": "{\"data\":{\"attributes\":null,\"viewMeta\":{\"titleV2\":[{\"text\":\"Filters\",\"variant\":\"heading3\"}],\"titlePadding\":[20,16,12,16],\"applyLabel\":[{\"text\":\"Show 0 product\",\"variant\":\"cta2\",\"style\":{\"color\":\"#FFFFFF\"}}],\"applyBackgroundColor\":\"#FF3269\",\"applyBorderColor\":\"#FF3269\",\"clearBorderColor\":\"#F0F4F9\",\"clearLabel\":[{\"text\":\"Clear all\",\"variant\":\"cta2\",\"style\":{\"color\":\"#FF3269\"}}],\"attributeStyle\":{\"pad"
+    },
+    {
+      "url": "https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1200-1200,pr-true,f-auto,q-40,dpr-2/cms/product_variant/a9d3d8d2-ffe9-48d9-90dd-c76defed76dd/Amul-Salted-Butter.jpeg",
+      "status": 200,
+      "content_type": "image/webp",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1200-1200,pr-true,f-auto,q-40,dpr-2/cms/product_variant/e15c0b10-0367-4675-a5ab-6da2abf9bee1/Amul-Salted-Butter.jpeg",
+      "status": 200,
+      "content_type": "image/webp",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-2400-2400,pr-true,f-auto,q-40,dpr-2/cms/product_variant/bc145179-e4da-45db-a10c-7c19dff04176/Amul-Salted-Butter-Chiplets-.jpeg",
+      "status": 200,
+      "content_type": "image/webp",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1200-1200,pr-true,f-auto,q-40,dpr-2/cms/product_variant/229b297f-d894-457d-9c8b-34aa86df6b88/Amul-Salted-Butter.jpeg",
+      "status": 200,
+      "content_type": "image/webp",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1200-1200,pr-true,f-auto,q-40,dpr-2/cms/product_variant/238198ac-e000-47e7-a0e4-3b0c3b98cb34/Amul-Unsalted-Cooking-Butter.jpeg",
+      "status": 200,
+      "content_type": "image/webp",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1200-1200,pr-true,f-auto,q-40,dpr-2/cms/product_variant/d2ba7227-a1c2-4881-b613-dac4c8501e8e/Amul-Garlic-Herbs-Buttery-Spread.jpeg",
+      "status": 200,
+      "content_type": "image/webp",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-2400-2400,pr-true,f-auto,q-40,dpr-2/cms/product_variant/9a6ce510-2ce2-4760-bf45-3f09629d2471/Delicious-Fat-Spread-Cholesterol-Free.jpeg",
+      "status": 200,
+      "content_type": "image/webp",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-2400-2400,pr-true,f-auto,q-40,dpr-2/cms/product_variant/a7da26d1-33d9-4d69-8c41-7d614bf57ac9/Delicious-Fat-Spread-Cholesterol-Free.jpeg",
+      "status": 200,
+      "content_type": "image/webp",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1500-1500,pr-true,f-auto,q-40,dpr-2/cms/product_variant/e9ddd194-81a7-4b0e-8caa-77f2a0192a52/Amul-Lite-Spread.jpeg",
+      "status": 200,
+      "content_type": "image/webp",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-2400-2400,pr-true,f-auto,q-40,dpr-2/cms/product_variant/ddce740b-b7bd-432d-a848-cff1c50bd7f3/Amul-Lite-Milk-Fat-Spread.jpeg",
+      "status": 200,
+      "content_type": "image/webp",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1600-1600,pr-true,f-auto,q-40,dpr-2/cms/product_variant/3233a87c-f6dc-4aab-84ec-637d91cbcad9/Milky-Mist-Cooking-Butter-Unsalted.jpeg",
+      "status": 200,
+      "content_type": "image/webp",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-3508-3508,pr-true,f-auto,q-40,dpr-2/cms/product_variant/c7773daa-1eca-445e-abb8-691c507721d1/Heritage-Table-Butter.jpg",
+      "status": 200,
+      "content_type": "image/webp",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-840-840,pr-true,f-auto,q-40,dpr-2/cms/product_variant/1b8bc7e8-d816-4277-a77f-9efff348886f/Milky-Mist-Butter-Chiplet.jpg",
+      "status": 200,
+      "content_type": "image/webp",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1600-1600,pr-true,f-auto,q-40,dpr-2/cms/product_variant/cbc99615-b1c3-4cc8-b771-c92279c7647e/Milky-Mist-Table-Butter-Tub.jpeg",
+      "status": 200,
+      "content_type": "image/webp",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1600-1600,pr-true,f-auto,q-40,dpr-2/cms/product_variant/5acce062-beb2-4aa3-a8bc-d07b6752ee58/Milky-Mist-Cooking-Butter-Unsalted.jpeg",
+      "status": 200,
+      "content_type": "image/webp",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1000-1000,pr-true,f-auto,q-40,dpr-2/cms/product_variant/0a755b2e-850e-4f11-bd9f-3f664a14b8c7/Nandini-Unsalted-Butter-.jpeg",
+      "status": 200,
+      "content_type": "image/webp",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-3000-3000,pr-true,f-auto,q-40,dpr-2/cms/product_variant/6a2c8c28-7eb2-47d7-b04b-965c22dc653a/Nutralite-Premium-Fat-Spread.jpeg",
+      "status": 200,
+      "content_type": "image/webp",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-3000-3000,pr-true,f-auto,q-40,dpr-2/cms/product_variant/cf822ce2-2fa7-46e4-9ba9-2ea00d7e1902/Amul-Butter-Chiplet.jpeg",
+      "status": 200,
+      "content_type": "image/webp",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-3000-3000,pr-true,f-auto,q-40,dpr-2/cms/product_variant/51cc6d4d-9d5b-4567-a7a4-e262729d70cb/Nutralite-Doodhshakti-Probiotic-Butter-Spread-Tub.jpeg",
+      "status": 200,
+      "content_type": "image/webp",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1000-1000,pr-true,f-auto,q-40,dpr-2/cms/product_variant/488d189b-1ca3-4a3e-82b1-f8a94fef31cc/Akshayakalpa-Organic-Unsalted-Cooking-Butter.jpeg",
+      "status": 200,
+      "content_type": "image/webp",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1000-1000,pr-true,f-auto,q-40,dpr-2/cms/product_variant/f4549900-4cfe-4036-9c62-397f34cc4322/Akshayakalpa-Organic-Salted-Table-Butter.jpg",
+      "status": 200,
+      "content_type": "image/webp",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1000-1000,pr-true,f-auto,q-40,dpr-2/cms/product_variant/c80f3142-9f88-4959-a06d-50846b087203/Akshayakalpa-Organic-Salted-Table-Butter.jpg",
+      "status": 200,
+      "content_type": "image/webp",
+      "body_preview": ""
+    },
+    {
+      "url": "https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1830-1960,pr-true,f-auto,q-40,dpr-2/cms/product_variant/7a7e5721-4199-4b8b-8110-59f11f155383/Nutralite-Doodhshakti-Probiotic-Butter-Spread.jpeg",
+      "status": 200,
+      "content_type": "image/webp",
+      "body_preview": ""
+    }
+  ]
+}

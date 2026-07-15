@@ -56,13 +56,15 @@ class FakeProvider(BaseProvider):
 
     def fetch_price_for_catalog_product(self, product) -> dict:
         price = self._price_for(product.name)
-        # Pseudo stock: majority in stock
         digest = hashlib.md5(f"stock:{self.store_slug}:{product.id}".encode()).hexdigest()
         in_stock = int(digest[:2], 16) % 10 != 0
+        # Prefer catalog image so cards stay populated in fake/hybrid fallbacks
+        image_url = getattr(product, "image_url", None)
         return {
             "price": price,
             "in_stock": in_stock,
             "product_url": None,
+            "image_url": image_url,
             "external_id": f"fake-{product.id}",
             "normalized_name": product.name,
         }

@@ -41,7 +41,7 @@ class ProductSerializer(serializers.ModelSerializer):
             if request:
                 return request.build_absolute_uri(url)
             return url
-        return None
+        return obj.image_url or None
 
     def get_lowest_price(self, obj):
         value = getattr(obj, "lowest_price", None)
@@ -145,4 +145,4 @@ class ProductPriceComparisonSerializer(serializers.ModelSerializer):
             if request:
                 return request.build_absolute_uri(url)
             return url
-        return None
+        return obj.image_url or None

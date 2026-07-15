@@ -1,12 +1,13 @@
-import { Package, ArrowRight, Heart, TrendingDown, TrendingUp, Minus } from "lucide-react";
+import { ArrowRight, Heart, TrendingDown, TrendingUp, Minus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { useWishlist } from "../../hooks/useWishlist";
+import ProductImage from "../common/ProductImage";
 
 const STORE_COLORS = {
   Blinkit: "bg-yellow-100 text-yellow-800",
-  Zepto: "bg-violet-100 text-violet-800",
+  Zepto: "bg-rose-100 text-rose-800",
   Instamart: "bg-orange-100 text-orange-800",
 };
 
@@ -65,16 +66,7 @@ function ProductCard({ product }) {
       </button>
 
       <div className="mb-4 flex h-36 items-center justify-center overflow-hidden rounded-xl bg-canvas">
-        {product.image_url ? (
-          <img
-            src={product.image_url}
-            alt={product.name}
-            className="h-full w-full object-contain p-3"
-            loading="lazy"
-          />
-        ) : (
-          <Package size={48} className="text-slate-300" aria-hidden />
-        )}
+        <ProductImage src={product.image_url} alt={product.name} iconSize={48} />
       </div>
 
       <div className="mb-2 flex flex-wrap gap-1.5">

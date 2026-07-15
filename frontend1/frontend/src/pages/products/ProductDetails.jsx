@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  Package,
   Trophy,
   CheckCircle2,
   XCircle,
@@ -16,8 +15,10 @@ import { useProduct } from "../../hooks/useProducts";
 import { useProductHistory } from "../../hooks/useProductHistory";
 import { useProductPrices, useProductStats } from "../../hooks/useProductPrices";
 import { useWishlist } from "../../hooks/useWishlist";
+import { useAuth } from "../../hooks/useAuth";
 import { createPriceAlert } from "../../services/authService";
 import PriceHistoryChart from "../../components/products/PriceHistoryChart";
+import ProductImage from "../../components/common/ProductImage";
 import Skeleton from "../../components/common/Skeleton";
 import ErrorState from "../../components/common/ErrorState";
 
@@ -41,6 +42,7 @@ function ProductDetails() {
   } = useProductHistory(id);
   const { data: stats } = useProductStats(id);
   const { isWishlisted, toggleWishlist } = useWishlist();
+  const { isGuest, isSignedIn } = useAuth();
   const [alertPrice, setAlertPrice] = useState("");
   const [alertEmail, setAlertEmail] = useState("");
   const [savingAlert, setSavingAlert] = useState(false);
@@ -59,6 +61,10 @@ function ProductDetails() {
       toast.error("Enter a target price");
       return;
     }
+    if (isGuest && !alertEmail.trim()) {
+      toast.error("Enter an email so we can notify you");
+      return;
+    }
     setSavingAlert(true);
     try {
       await createPriceAlert({
@@ -66,10 +72,18 @@ function ProductDetails() {
         target_price: alertPrice,
         email: alertEmail,
       });
-      toast.success("Price alert saved");
+      toast.success(
+        isSignedIn || alertEmail
+          ? "Price alert saved"
+          : "Price alert saved (add email for delivery)"
+      );
       setAlertPrice("");
     } catch (err) {
-      toast.error("Could not save alert");
+      const msg =
+        err?.response?.data?.email?.[0] ||
+        err?.response?.data?.detail ||
+        "Could not save alert";
+      toast.error(typeof msg === "string" ? msg : "Could not save alert");
       console.error(err);
     } finally {
       setSavingAlert(false);
@@ -105,15 +119,12 @@ function ProductDetails() {
           animate={{ opacity: 1, scale: 1 }}
           className="card flex h-72 items-center justify-center overflow-hidden sm:h-96"
         >
-          {product.image_url ? (
-            <img
-              src={product.image_url}
-              alt={product.name}
-              className="h-full w-full object-contain p-8"
-            />
-          ) : (
-            <Package size={96} className="text-slate-300" />
-          )}
+          <ProductImage
+            src={product.image_url}
+            alt={product.name}
+            className="h-full w-full object-contain p-8"
+            iconSize={96}
+          />
         </motion.div>
 
         <div className="space-y-5">

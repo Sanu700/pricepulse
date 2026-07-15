@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { keepPreviousData } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { PackageSearch } from "lucide-react";
 import ProductCard from "../../components/products/ProductCard";
@@ -11,21 +12,24 @@ import EmptyState from "../../components/common/EmptyState";
 
 function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const initial = searchParams.get("q") ?? "";
-  const [search, setSearch] = useState(initial);
-  const { data, isLoading, error } = useProducts(
-    search.trim() ? { search: search.trim() } : {}
+  const committed = (searchParams.get("q") ?? "").trim();
+  const [draft, setDraft] = useState(committed);
+
+  // Only the URL-committed query hits the API (submit / Enter / suggestion pick).
+  const { data, isLoading, isFetching, error } = useProducts(
+    committed ? { search: committed } : {},
+    { placeholderData: keepPreviousData }
   );
 
   useEffect(() => {
-    setSearch(searchParams.get("q") ?? "");
+    setDraft(searchParams.get("q") ?? "");
   }, [searchParams]);
 
   const products = data ?? [];
 
   function commitSearch(q) {
-    const trimmed = (q ?? search).trim();
-    setSearch(trimmed);
+    const trimmed = (q ?? draft).trim();
+    setDraft(trimmed);
     if (trimmed) setSearchParams({ q: trimmed });
     else setSearchParams({});
   }
@@ -39,15 +43,15 @@ function Products() {
 
       <div className="mb-8 max-w-xl">
         <HeroSearch
-          value={search}
-          onChange={setSearch}
+          value={draft}
+          onChange={setDraft}
           onSubmit={commitSearch}
           size="sm"
           placeholder="Filter by name, brand, category…"
         />
       </div>
 
-      {isLoading && (
+      {isLoading && !data && (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <Skeleton key={i} className="h-80" />
@@ -67,9 +71,9 @@ function Products() {
         />
       )}
 
-      {!isLoading && !error && products.length > 0 && (
+      {!error && products.length > 0 && (
         <motion.div
-          className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
+          className={`grid gap-5 sm:grid-cols-2 lg:grid-cols-3 ${isFetching ? "opacity-70" : ""}`}
           initial="hidden"
           animate="visible"
           variants={{ visible: { transition: { staggerChildren: 0.04 } } }}

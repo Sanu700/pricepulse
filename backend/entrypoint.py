@@ -1,5 +1,9 @@
 #!/usr/bin/env python
-"""Container boot: wait for Postgres, migrate, seed, then exec the given command."""
+"""Container boot helper.
+
+RUN_BOOTSTRAP=1 (backend only): wait for DB → migrate → seed → optional collect.
+Celery / beat should set RUN_BOOTSTRAP=0 and just wait for DB before exec.
+"""
 
 from __future__ import annotations
 
@@ -36,10 +40,13 @@ def wait_for_db(retries: int = 30) -> None:
     raise SystemExit("Database did not become ready")
 
 
-def main() -> None:
-    wait_for_db()
+def bootstrap() -> None:
     subprocess.check_call([sys.executable, "manage.py", "migrate", "--noinput"])
     subprocess.check_call([sys.executable, "manage.py", "seed_data"])
+
+    if os.environ.get("RUN_COLLECT_ON_BOOT", "0").lower() not in ("1", "true", "yes"):
+        print("Skipping collect on boot (set RUN_COLLECT_ON_BOOT=1 to enable)")
+        return
 
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
     import django
@@ -53,6 +60,14 @@ def main() -> None:
         CollectorService.collect()
     else:
         print("Prices already present — skipping collect on boot")
+
+
+def main() -> None:
+    wait_for_db()
+    if os.environ.get("RUN_BOOTSTRAP", "1").lower() in ("1", "true", "yes"):
+        bootstrap()
+    else:
+        print("RUN_BOOTSTRAP disabled — skipping migrate/seed")
 
     if len(sys.argv) > 1:
         os.execvp(sys.argv[1], sys.argv[1:])

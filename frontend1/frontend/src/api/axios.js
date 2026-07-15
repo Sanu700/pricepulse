@@ -27,6 +27,16 @@ function addRefreshSubscriber(cb) {
   refreshSubscribers.push(cb);
 }
 
+function clearSessionAndRedirect() {
+  localStorage.removeItem("access");
+  localStorage.removeItem("refresh");
+  localStorage.removeItem("pricepulse_guest");
+  window.dispatchEvent(new CustomEvent("pricepulse:session-expired"));
+  if (!window.location.pathname.startsWith("/login")) {
+    window.location.assign("/login");
+  }
+}
+
 async function refreshAccessToken() {
   const refresh = localStorage.getItem("refresh");
   if (!refresh) throw new Error("No refresh token available");
@@ -35,6 +45,12 @@ async function refreshAccessToken() {
   const access = response.data.access;
   if (access) {
     localStorage.setItem("access", access);
+    window.dispatchEvent(
+      new CustomEvent("pricepulse:token-refreshed", { detail: { access } })
+    );
+  }
+  if (response.data.refresh) {
+    localStorage.setItem("refresh", response.data.refresh);
   }
   return access;
 }
@@ -58,8 +74,6 @@ api.interceptors.response.use(
 
     originalRequest._retry = true;
 
-    // Queue this request first, then kick off a single shared refresh.
-    // Fixes hang where onRefreshed() fired before the initiator subscribed.
     return new Promise((resolve, reject) => {
       addRefreshSubscriber((token) => {
         if (!token) {
@@ -75,12 +89,10 @@ api.interceptors.response.use(
         isRefreshing = true;
         refreshAccessToken()
           .then((newToken) => onRefreshed(newToken))
-          .catch((refreshErr) => {
-            localStorage.removeItem("access");
-            localStorage.removeItem("refresh");
+          .catch(() => {
             onRefreshed(null);
-            window.location.href = "/login";
-            reject(refreshErr);
+            clearSessionAndRedirect();
+            reject(error);
           })
           .finally(() => {
             isRefreshing = false;
