@@ -128,7 +128,6 @@ DATABASES = {
     )
 }
 
-import dj_database_url
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
@@ -164,9 +163,7 @@ CORS_ALLOW_CREDENTIALS = os.getenv("CORS_ALLOW_CREDENTIALS", "True").lower() in 
     "yes",
 )
 
-# ==========================================================
-# Redis / Celery
-# ==========================================================
+
 
 # ==========================================================
 # Redis / Celery
