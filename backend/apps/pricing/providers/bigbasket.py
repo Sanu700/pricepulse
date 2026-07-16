@@ -1,16 +1,16 @@
 """
-Swiggy Instamart provider.
+BigBasket provider.
 
 Research findings (2026):
 - No official public API.
-- Cold GET/POST https://www.swiggy.com/api/instamart/search rejects anonymous
-  clients (device token / session cookies required) → 403/401.
-- A real Chromium session (Playwright) on the Instamart search page loads the
-  same consumer JSON, which we intercept.
+- Cold GET https://www.bigbasket.com/listing-svc/v2/products is guarded by
+  Akamai bot protection and rejects anonymous clients.
+- A real Chromium session (Playwright) on the product-search page loads the
+  same listing-svc JSON, which we intercept.
 - DOM price cards are parsed as a last resort.
 
-Mirrors the Blinkit/Zepto strategy and returns [] on total failure so
-CollectorService can fall back to FakeProvider (hybrid mode).
+Mirrors the Blinkit/Zepto/Instamart strategy and returns [] on total failure
+so CollectorService can fall back to FakeProvider (hybrid mode).
 """
 
 from __future__ import annotations
@@ -28,12 +28,12 @@ from .http import cached_json, http_get_json
 
 logger = logging.getLogger(__name__)
 
-INSTAMART_SEARCH_URL = "https://www.swiggy.com/api/instamart/search"
+BIGBASKET_SEARCH_URL = "https://www.bigbasket.com/listing-svc/v2/products"
 
 
-class InstamartProvider(BaseProvider):
-    name = "Instamart"
-    store_slug = "instamart"
+class BigBasketProvider(BaseProvider):
+    name = "BigBasket"
+    store_slug = "bigbasket"
 
     def __init__(self) -> None:
         self.lat = float(getattr(settings, "PROVIDER_LATITUDE", 12.9716))
@@ -42,7 +42,7 @@ class InstamartProvider(BaseProvider):
         self.use_playwright = bool(getattr(settings, "PROVIDER_USE_PLAYWRIGHT", True))
 
     def search(self, query: str, *, limit: int = 10) -> list[ProviderProduct]:
-        cache_key = f"provider:instamart:search:{query.lower()}:{limit}:{self.lat}:{self.lon}"
+        cache_key = f"provider:bigbasket:search:{query.lower()}:{limit}:{self.lat}:{self.lon}"
 
         def loader():
             products = self._search_via_aggregator(query, limit=limit)
@@ -54,7 +54,7 @@ class InstamartProvider(BaseProvider):
                 return products
 
             if self.use_playwright and playwright_available():
-                logger.info("Instamart: attempting Playwright session…")
+                logger.info("BigBasket: attempting Playwright session…")
                 products = self._search_via_playwright_json(query, limit=limit)
                 if products:
                     return products
@@ -66,7 +66,7 @@ class InstamartProvider(BaseProvider):
         try:
             return self._finalize(cached_json(cache_key, ttl=self.cache_ttl, loader=loader) or [])
         except Exception as exc:  # noqa: BLE001
-            logger.warning("Instamart search error for %r: %s", query, exc)
+            logger.warning("BigBasket search error for %r: %s", query, exc)
             return []
 
     def get_product(self, external_id: str) -> Optional[ProviderProduct]:
@@ -92,21 +92,21 @@ class InstamartProvider(BaseProvider):
     def _search_cold_http(self, query: str, *, limit: int) -> list[ProviderProduct]:
         try:
             payload = http_get_json(
-                INSTAMART_SEARCH_URL,
+                BIGBASKET_SEARCH_URL,
                 provider=self.store_slug,
-                params={"query": query, "pageNumber": 0},
-                headers={"referer": "https://www.swiggy.com/instamart"},
+                params={"type": "ps", "slug": query, "page": 1},
+                headers={"referer": "https://www.bigbasket.com/ps/"},
             )
             return self._parse_payload(payload, limit=limit)
         except Exception as exc:  # noqa: BLE001
-            logger.info("Instamart cold HTTP blocked/failed: %s", exc)
+            logger.info("BigBasket cold HTTP blocked/failed: %s", exc)
             return []
 
     def _search_via_playwright_json(self, query: str, *, limit: int) -> list[ProviderProduct]:
-        page_url = f"https://www.swiggy.com/instamart/search?custom_back=true&query={quote(query)}"
+        page_url = f"https://www.bigbasket.com/ps/?q={quote(query)}&nc=as"
         payload = capture_matching_json(
             page_url=page_url,
-            url_contains="instamart/search",
+            url_contains="listing-svc",
             latitude=self.lat,
             longitude=self.lon,
             wait_ms=12000,
@@ -116,7 +116,7 @@ class InstamartProvider(BaseProvider):
         return self._parse_payload(payload, limit=limit)
 
     def _search_via_playwright_dom(self, query: str, *, limit: int) -> list[ProviderProduct]:
-        page_url = f"https://www.swiggy.com/instamart/search?custom_back=true&query={quote(query)}"
+        page_url = f"https://www.bigbasket.com/ps/?q={quote(query)}&nc=as"
         cards = scrape_price_cards_from_dom(
             page_url=page_url,
             latitude=self.lat,
@@ -128,7 +128,7 @@ class InstamartProvider(BaseProvider):
             name = card["name"]
             product = build_product(
                 source=self.name,
-                external_id=f"instamart-dom-{abs(hash(name)) % 10_000_000}",
+                external_id=f"bigbasket-dom-{abs(hash(name)) % 10_000_000}",
                 name=name,
                 price=card["price"],
                 unit=card.get("unit") or extract_unit(name),
@@ -138,14 +138,14 @@ class InstamartProvider(BaseProvider):
             if product:
                 products.append(product)
         if products:
-            logger.info("Instamart DOM parsed %s products for %r", len(products), query)
+            logger.info("BigBasket DOM parsed %s products for %r", len(products), query)
         return products
 
     def _search_via_aggregator(self, query: str, *, limit: int) -> list[ProviderProduct]:
         from .aggregator import AggregatorClient
 
         client = AggregatorClient()
-        rows = client.search(platform="Instamart", query=query, lat=self.lat, lon=self.lon)
+        rows = client.search(platform="BigBasket", query=query, lat=self.lat, lon=self.lon)
         products: list[ProviderProduct] = []
         for row in rows[:limit]:
             product = build_product(
@@ -165,44 +165,48 @@ class InstamartProvider(BaseProvider):
         return products
 
     def _parse_payload(self, payload: Any, *, limit: int) -> list[ProviderProduct]:
-        """Recursively extract Instamart variation/product nodes."""
+        """Extract products from BigBasket listing-svc JSON."""
         products: list[ProviderProduct] = []
         seen: set[str] = set()
 
         def node_to_product(node: dict) -> Optional[ProviderProduct]:
-            variation = node
-            variations = node.get("variations")
-            if isinstance(variations, list) and variations:
-                variation = variations[0]
-
-            name = (
-                node.get("display_name")
-                or node.get("name")
-                or variation.get("display_name")
-                or variation.get("name")
-            )
-            price_block = variation.get("price") if isinstance(variation.get("price"), dict) else {}
-            price = (
-                price_block.get("offer_price")
-                or price_block.get("store_price")
-                or variation.get("offer_price")
-                or variation.get("price")
-            )
-            if isinstance(price, dict):
-                price = price.get("offer_price") or price.get("store_price") or price.get("mrp")
-            mrp = price_block.get("mrp") or variation.get("mrp")
-            pid = (
-                node.get("product_id")
-                or node.get("id")
-                or variation.get("id")
-                or variation.get("product_id")
-            )
-            if not name or price is None or pid is None:
+            name = node.get("desc") or node.get("name") or node.get("display_name")
+            pid = node.get("id") or node.get("sku") or node.get("product_id")
+            if not name or pid is None:
                 return None
 
-            images = variation.get("images") or node.get("images") or []
-            unit = variation.get("quantity") or variation.get("sku_quantity_with_combo")
-            in_stock = not bool(variation.get("out_of_stock") or node.get("out_of_stock"))
+            brand = node.get("brand")
+            if isinstance(brand, dict):
+                brand = brand.get("name")
+
+            pricing = node.get("pricing") if isinstance(node.get("pricing"), dict) else {}
+            discount = pricing.get("discount") if isinstance(pricing.get("discount"), dict) else {}
+            prim = discount.get("prim_price") if isinstance(discount.get("prim_price"), dict) else {}
+            price = (
+                prim.get("sp")
+                or discount.get("sp")
+                or node.get("sp")
+                or node.get("offer_price")
+                or node.get("price")
+            )
+            mrp = discount.get("mrp") or node.get("mrp")
+            if price is None:
+                return None
+
+            images = node.get("images") or []
+            image = None
+            if isinstance(images, list) and images:
+                first = images[0]
+                image = first.get("m") or first.get("l") or first.get("s") if isinstance(first, dict) else first
+
+            unit = node.get("w") or node.get("magnitude") or node.get("unit")
+            absolute_url = node.get("absolute_url") or node.get("slug")
+            product_url = (
+                absolute_url
+                if isinstance(absolute_url, str) and absolute_url.startswith("http")
+                else f"https://www.bigbasket.com/pd/{pid}/"
+            )
+            in_stock = not bool(node.get("out_of_stock") or node.get("is_sold_out"))
 
             return build_product(
                 source=self.name,
@@ -211,10 +215,10 @@ class InstamartProvider(BaseProvider):
                 price=price,
                 mrp=mrp,
                 in_stock=in_stock,
-                brand=node.get("brand") or variation.get("brand"),
+                brand=brand,
                 unit=unit,
-                image_url=images if isinstance(images, list) else None,
-                product_url=f"https://www.swiggy.com/instamart/item/{pid}",
+                image_url=image,
+                product_url=product_url,
                 raw=node,
             )
 
@@ -222,11 +226,9 @@ class InstamartProvider(BaseProvider):
             if len(products) >= limit:
                 return
             if isinstance(node, dict):
-                looks_like_product = (
-                    ("product_id" in node or "variations" in node)
-                    and ("display_name" in node or "name" in node)
-                )
-                if looks_like_product:
+                if ("desc" in node or "name" in node) and (
+                    "pricing" in node or "sp" in node or "mrp" in node
+                ):
                     product = node_to_product(node)
                     if product and product.external_id not in seen:
                         seen.add(product.external_id)
@@ -238,5 +240,5 @@ class InstamartProvider(BaseProvider):
                     walk(item)
 
         walk(payload)
-        logger.info("Instamart parsed %s products from JSON", len(products))
+        logger.info("BigBasket parsed %s products from JSON", len(products))
         return products[:limit]

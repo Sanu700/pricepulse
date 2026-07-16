@@ -1,1 +1,0 @@
-import{c as e}from"./index-BUx2x_bY.js";async function t(t){return(await e.post(`/accounts/login/`,t)).data}async function n(t){return(await e.post(`/accounts/register/`,t)).data}async function r(){return(await e.get(`/accounts/profile/`)).data}async function i(t){return(await e.post(`/alerts/`,t)).data}export{n as i,r as n,t as r,i as t};

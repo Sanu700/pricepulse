@@ -19,6 +19,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { createPriceAlert } from "../../services/authService";
 import PriceHistoryChart from "../../components/products/PriceHistoryChart";
 import ProductImage from "../../components/common/ProductImage";
+import StoreLogo from "../../components/common/StoreLogo";
 import Skeleton from "../../components/common/Skeleton";
 import ErrorState from "../../components/common/ErrorState";
 
@@ -123,7 +124,6 @@ function ProductDetails() {
             src={product.image_url}
             alt={product.name}
             className="h-full w-full object-contain p-8"
-            iconSize={96}
           />
         </motion.div>
 
@@ -241,13 +241,15 @@ function ProductDetails() {
           <p className="p-6 text-sm text-muted">No prices yet — run price collection.</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[520px] text-left text-sm">
+            <table className="w-full min-w-[640px] text-left text-sm">
               <thead className="bg-canvas text-xs uppercase tracking-wide text-muted">
                 <tr>
                   <th className="px-5 py-3 font-medium">Store</th>
                   <th className="px-5 py-3 font-medium">Price</th>
+                  <th className="px-5 py-3 font-medium">MRP</th>
+                  <th className="px-5 py-3 font-medium">Discount</th>
+                  <th className="px-5 py-3 font-medium">ETA</th>
                   <th className="px-5 py-3 font-medium">Availability</th>
-                  <th className="px-5 py-3 font-medium">Updated</th>
                   <th className="px-5 py-3 font-medium" />
                 </tr>
               </thead>
@@ -261,9 +263,7 @@ function ProductDetails() {
                   >
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-2">
-                        {row.store_logo ? (
-                          <img src={row.store_logo} alt="" className="h-6 w-6 object-contain" />
-                        ) : null}
+                        <StoreLogo name={row.store} size={24} />
                         <span className="font-semibold text-ink">{row.store}</span>
                         {index === 0 && <span className="badge badge-cheap">Cheapest</span>}
                       </div>
@@ -276,6 +276,21 @@ function ProductDetails() {
                         </span>
                       )}
                     </td>
+                    <td className="tabular px-5 py-4 text-muted">
+                      {row.mrp ? (
+                        <span className="line-through">{formatINR(row.mrp)}</span>
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+                    <td className="px-5 py-4">
+                      {row.discount_percent ? (
+                        <span className="badge badge-accent">{row.discount_percent}% off</span>
+                      ) : (
+                        <span className="text-muted">—</span>
+                      )}
+                    </td>
+                    <td className="px-5 py-4 text-muted">{row.delivery_eta || "—"}</td>
                     <td className="px-5 py-4">
                       <span
                         className={`inline-flex items-center gap-1 text-sm ${
@@ -286,26 +301,18 @@ function ProductDetails() {
                         {row.in_stock ? "In stock" : "Out of stock"}
                       </span>
                     </td>
-                    <td className="px-5 py-4 text-muted">
-                      {row.last_updated
-                        ? new Date(row.last_updated).toLocaleString("en-IN", {
-                            day: "numeric",
-                            month: "short",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })
-                        : "—"}
-                    </td>
                     <td className="px-5 py-4">
-                      {row.product_url && (
+                      {row.product_url ? (
                         <a
                           href={row.product_url}
                           target="_blank"
                           rel="noreferrer"
-                          className="inline-flex items-center gap-1 text-accent hover:underline"
+                          className="inline-flex items-center gap-1 whitespace-nowrap font-medium text-accent hover:underline"
                         >
-                          Open <ExternalLink size={12} />
+                          Visit store <ExternalLink size={12} />
                         </a>
+                      ) : (
+                        <span className="text-xs text-muted">—</span>
                       )}
                     </td>
                   </tr>

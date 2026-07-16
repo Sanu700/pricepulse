@@ -4,7 +4,8 @@ from apps.catalog.models import Brand, Category, Product
 from apps.pricing.models import Store
 
 
-# Stable Unsplash grocery imagery for demos (provider URLs overwrite when live collect runs).
+# Product images come from live providers during collection. Left blank so the
+# frontend renders a local placeholder instead of unrelated stock photography.
 SAMPLE_PRODUCTS = [
     {
         "barcode": "8901093106545",
@@ -12,7 +13,6 @@ SAMPLE_PRODUCTS = [
         "brand": "Nestle",
         "category": "Dairy",
         "description": "Dairy whitener for tea and coffee.",
-        "image_url": "https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=400&q=80",
     },
     {
         "barcode": "8906004922153",
@@ -20,7 +20,6 @@ SAMPLE_PRODUCTS = [
         "brand": "Amul",
         "category": "Dairy",
         "description": "Salted butter for everyday cooking.",
-        "image_url": "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=400&q=80",
     },
     {
         "barcode": "8901164106503",
@@ -28,7 +27,6 @@ SAMPLE_PRODUCTS = [
         "brand": "Nestle",
         "category": "Snacks",
         "description": "Classic chocolate wafer bar.",
-        "image_url": "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=400&q=80",
     },
     {
         "barcode": "8901262010016",
@@ -36,7 +34,6 @@ SAMPLE_PRODUCTS = [
         "brand": "Tata",
         "category": "Staples",
         "description": "Iodized salt for daily cooking.",
-        "image_url": "https://images.unsplash.com/photo-1606914501449-5a96b6afe27a?auto=format&fit=crop&w=400&q=80",
     },
     {
         "barcode": "8901030865521",
@@ -44,7 +41,6 @@ SAMPLE_PRODUCTS = [
         "brand": "Aashirvaad",
         "category": "Staples",
         "description": "Whole wheat flour for soft rotis.",
-        "image_url": "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=400&q=80",
     },
     {
         "barcode": "8901030869122",
@@ -52,7 +48,6 @@ SAMPLE_PRODUCTS = [
         "brand": "Fortune",
         "category": "Staples",
         "description": "Refined sunflower oil.",
-        "image_url": "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=400&q=80",
     },
     {
         "barcode": "8901058000158",
@@ -60,7 +55,6 @@ SAMPLE_PRODUCTS = [
         "brand": "Amul",
         "category": "Dairy",
         "description": "Full cream toned milk.",
-        "image_url": "https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=400&q=80",
     },
     {
         "barcode": "8901030694252",
@@ -68,7 +62,6 @@ SAMPLE_PRODUCTS = [
         "brand": "Nestle",
         "category": "Snacks",
         "description": "Family pack instant noodles.",
-        "image_url": "https://images.unsplash.com/photo-1612929632979-711df840bfd2?auto=format&fit=crop&w=400&q=80",
     },
     {
         "barcode": "8901491101837",
@@ -76,7 +69,6 @@ SAMPLE_PRODUCTS = [
         "brand": "Lay's",
         "category": "Snacks",
         "description": "Crispy salted potato chips.",
-        "image_url": "https://images.unsplash.com/photo-1566478989037-eec170784d0b?auto=format&fit=crop&w=400&q=80",
     },
     {
         "barcode": "8901030860014",
@@ -84,7 +76,6 @@ SAMPLE_PRODUCTS = [
         "brand": "Surf Excel",
         "category": "Household",
         "description": "Front-load detergent powder.",
-        "image_url": "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=400&q=80",
     },
     {
         "barcode": "8901030654792",
@@ -92,7 +83,6 @@ SAMPLE_PRODUCTS = [
         "brand": "Brooke Bond",
         "category": "Beverages",
         "description": "Strong leaf tea for everyday chai.",
-        "image_url": "https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?auto=format&fit=crop&w=400&q=80",
     },
     {
         "barcode": "8901262020077",
@@ -100,27 +90,16 @@ SAMPLE_PRODUCTS = [
         "brand": "Tata",
         "category": "Staples",
         "description": "Unpolished toor dal.",
-        "image_url": "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=400&q=80",
     },
 ]
 
 
+# Logos are served from the frontend (public/logos/*.svg) — no remote CDNs.
 STORES = [
-    {
-        "name": "Blinkit",
-        "logo": "https://cdn.grofers.com/assets/icon/blinkit.png",
-        "website": "https://blinkit.com",
-    },
-    {
-        "name": "Zepto",
-        "logo": "https://www.zeptonow.com/favicon.ico",
-        "website": "https://www.zeptonow.com",
-    },
-    {
-        "name": "Instamart",
-        "logo": "https://instamart-media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto/InstamartAssets/Instamart_logo.png",
-        "website": "https://www.swiggy.com/instamart",
-    },
+    {"name": "Blinkit", "website": "https://blinkit.com"},
+    {"name": "Zepto", "website": "https://www.zeptonow.com"},
+    {"name": "Instamart", "website": "https://www.swiggy.com/instamart"},
+    {"name": "BigBasket", "website": "https://www.bigbasket.com"},
 ]
 
 
@@ -131,7 +110,7 @@ class Command(BaseCommand):
         for store in STORES:
             Store.objects.get_or_create(
                 name=store["name"],
-                defaults={"logo": store["logo"], "website": store["website"]},
+                defaults={"website": store["website"]},
             )
 
         for item in SAMPLE_PRODUCTS:

@@ -13,6 +13,7 @@ from __future__ import annotations
 from django.conf import settings
 
 from .base import BaseProvider
+from .bigbasket import BigBasketProvider
 from .blinkit import BlinkitProvider
 from .fake import FakeProvider
 from .instamart import InstamartProvider
@@ -24,6 +25,7 @@ _PROVIDER_MAP: dict[str, type[BaseProvider]] = {
     "zepto": ZeptoProvider,
     "instamart": InstamartProvider,
     "swiggy instamart": InstamartProvider,
+    "bigbasket": BigBasketProvider,
 }
 
 
@@ -33,6 +35,7 @@ _FAKE_DEFAULTS = {
     "zepto": {"base": 82.0, "spread": 20.0},
     "instamart": {"base": 80.0, "spread": 24.0},
     "swiggy instamart": {"base": 80.0, "spread": 24.0},
+    "bigbasket": {"base": 76.0, "spread": 26.0},
 }
 
 
@@ -70,7 +73,15 @@ def get_fallback_provider(store_name: str) -> FakeProvider:
 
 
 def get_all_providers() -> list[BaseProvider]:
-    return [cls() for cls in (BlinkitProvider, ZeptoProvider, InstamartProvider)]
+    return [
+        cls()
+        for cls in (
+            BlinkitProvider,
+            ZeptoProvider,
+            InstamartProvider,
+            BigBasketProvider,
+        )
+    ]
 
 
 __all__ = [
@@ -81,5 +92,6 @@ __all__ = [
     "BlinkitProvider",
     "ZeptoProvider",
     "InstamartProvider",
+    "BigBasketProvider",
     "FakeProvider",
 ]

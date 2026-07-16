@@ -13,7 +13,12 @@ from typing import Any, Optional
 
 @dataclass
 class ProviderProduct:
-    """Normalized product payload returned by any grocery provider."""
+    """Normalized product payload returned by any grocery provider.
+
+    This is the single normalized schema shared by every provider
+    (Blinkit, Zepto, Instamart, BigBasket, Fake). ``price`` is the selling
+    price; ``selling_price`` is exposed as an alias for readability.
+    """
 
     external_id: str
     name: str
@@ -24,9 +29,31 @@ class ProviderProduct:
     brand: Optional[str] = None
     unit: Optional[str] = None
     mrp: Optional[Decimal] = None
+    delivery_eta: Optional[str] = None
+    source: Optional[str] = None
     barcode: Optional[str] = None
     store: Optional[str] = None
     raw: dict = field(default_factory=dict)
+
+    @property
+    def selling_price(self) -> Decimal:
+        return self.price
+
+    def to_result(self) -> dict:
+        """Return the canonical normalized dict every provider must produce."""
+        return {
+            "name": self.name,
+            "brand": self.brand,
+            "unit": self.unit,
+            "image_url": self.image_url,
+            "product_url": self.product_url,
+            "mrp": self.mrp,
+            "selling_price": self.price,
+            "in_stock": self.in_stock,
+            "delivery_eta": self.delivery_eta,
+            "source": self.source or self.store,
+            "raw": self.raw,
+        }
 
 
 _TOKEN_RE = re.compile(r"[a-z0-9]+")
@@ -90,6 +117,68 @@ def parse_money(value: Any, *, paise: bool = False) -> Optional[Decimal]:
     if paise:
         amount = amount / Decimal(100)
     return amount
+
+
+def build_product(
+    *,
+    source: str,
+    external_id: Any,
+    name: Any,
+    price: Any,
+    mrp: Any = None,
+    in_stock: Any = True,
+    image_url: Any = None,
+    product_url: Optional[str] = None,
+    brand: Any = None,
+    unit: Any = None,
+    delivery_eta: Optional[str] = None,
+    barcode: Optional[str] = None,
+    raw: Optional[dict] = None,
+    paise: bool = False,
+) -> Optional[ProviderProduct]:
+    """Single normalization entry point shared by every provider.
+
+    Centralizes money/text parsing so parsing logic is not duplicated across
+    provider modules. Returns ``None`` when the minimum viable fields
+    (name + price + id) cannot be resolved.
+    """
+    name_s = styled_text(name)
+    price_d = price if isinstance(price, Decimal) else parse_money(price, paise=paise)
+    if not name_s or price_d is None or external_id is None:
+        return None
+
+    if isinstance(mrp, Decimal):
+        mrp_d: Optional[Decimal] = mrp
+    else:
+        mrp_d = parse_money(mrp, paise=paise) if mrp is not None else None
+
+    image = None
+    if isinstance(image_url, (list, tuple)):
+        image = next((i for i in image_url if i), None)
+    else:
+        image = image_url
+
+    if isinstance(in_stock, str):
+        in_stock_b = in_stock.strip().lower() not in ("false", "0", "no", "out_of_stock")
+    else:
+        in_stock_b = bool(in_stock)
+
+    return ProviderProduct(
+        external_id=str(external_id).strip("'\""),
+        name=name_s,
+        price=price_d,
+        mrp=mrp_d,
+        in_stock=in_stock_b,
+        image_url=str(image) if image else None,
+        product_url=product_url,
+        brand=styled_text(brand),
+        unit=styled_text(unit) or extract_unit(name_s),
+        delivery_eta=str(delivery_eta) if delivery_eta else None,
+        source=source,
+        store=source,
+        barcode=barcode,
+        raw=raw or {},
+    )
 
 
 def fuzzy_score(
@@ -194,6 +283,15 @@ class BaseProvider(ABC):
     def search_products(self, query: str, *, limit: int = 10) -> list[ProviderProduct]:
         return self.search(query, limit=limit)
 
+    def _finalize(self, products: list[ProviderProduct]) -> list[ProviderProduct]:
+        """Ensure every result carries a consistent source/store label."""
+        for item in products:
+            if not item.source:
+                item.source = self.name
+            if not item.store:
+                item.store = self.name
+        return products
+
     @abstractmethod
     def get_product(self, external_id: str) -> Optional[ProviderProduct]:
         """Fetch a single product by provider-specific id."""
@@ -246,13 +344,16 @@ class BaseProvider(ABC):
 
         return {
             "price": match.price,
+            "mrp": match.mrp,
             "in_stock": match.in_stock,
             "product_url": match.product_url,
             "image_url": match.image_url,
+            "delivery_eta": match.delivery_eta,
             "external_id": match.external_id,
             "normalized_name": match.name,
             "unit": match.unit,
             "brand": match.brand,
+            "source": match.source or self.name,
         }
 
     @staticmethod

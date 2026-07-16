@@ -1,6 +1,6 @@
 # PricePulse
 
-**Compare grocery prices across Blinkit, Zepto, and Instamart — in one place.**
+**Compare grocery prices across Blinkit, Zepto, Swiggy Instamart, and BigBasket — in one place.**
 
 PricePulse is a full-stack grocery price comparison app: live (or simulated) multi-store prices, history charts, price-drop alerts, analytics, and a polished React UI. Built as a production-quality portfolio project.
 
@@ -8,7 +8,7 @@ PricePulse is a full-stack grocery price comparison app: live (or simulated) mul
 
 ## Overview
 
-Shoppers waste money because the same SKU costs different amounts on Blinkit vs Zepto vs Instamart. PricePulse:
+Shoppers waste money because the same SKU costs different amounts on Blinkit vs Zepto vs Instamart vs BigBasket. PricePulse:
 
 1. Tracks a catalog of everyday grocery products  
 2. Collects current prices per store through a provider layer  
@@ -21,14 +21,18 @@ Guest mode lets reviewers demo the product without registering.
 
 ## Features
 
-- Multi-store price comparison (Blinkit · Zepto · Instamart)
+- Multi-store price comparison (Blinkit · Zepto · Instamart · BigBasket)
 - Product catalog with search, filters, and product detail pages
+- Comparison table with MRP, discount %, delivery ETA, stock, and "Visit store" deep links
+- Self-hosted store logos + local product placeholder (no remote CDNs, no broken images)
 - Price history charts and product stats
 - Dashboard analytics (drops, cheapest picks, store overview)
 - Wishlist (local) + price alerts (email / console)
 - JWT auth (register / login / refresh) + guest browsing
-- Provider architecture with hybrid FakeProvider fallback
-- Playwright-backed Blinkit/Zepto capture when enabled
+- Single normalized provider schema + hybrid FakeProvider fallback
+- Playwright-backed JSON interception for all four live providers when enabled
+- Concurrent multi-provider collection + 5-minute provider cache
+- DB-first search with background stale refresh
 - Celery beat scheduled collection
 - Docker Compose one-command local stack
 - OpenAPI docs via drf-spectacular
@@ -81,16 +85,29 @@ Guest mode lets reviewers demo the product without registering.
                                               │
                                               ▼
                                     Provider registry
-                         ┌────────────┬────────────┬────────────┐
-                         │  Blinkit   │   Zepto    │ Instamart  │
-                         │ (Playwright│ (Playwright│  (stub →   │
-                         │  / JSON)   │  / BFF)    │   Fake)    │
-                         └─────┬──────┴─────┬──────┴─────┬──────┘
-                               │            │            │
-                               └────────────┴────────────┘
-                                      FakeProvider
-                                   (hybrid fallback)
+                    ┌──────────┬──────────┬───────────┬───────────┐
+                    │ Blinkit  │  Zepto   │ Instamart │ BigBasket │
+                    │(Playwright(Playwright(Playwright │(Playwright│
+                    │  /JSON)  │  /BFF)   │  /JSON)   │/listing-  │
+                    │          │          │           │  svc)     │
+                    └────┬─────┴────┬─────┴─────┬─────┴─────┬─────┘
+                         │          │           │           │
+                         └──────────┴───────────┴───────────┘
+                                 FakeProvider
+                              (hybrid fallback)
 ```
+
+All providers return a single normalized schema:
+
+```
+ProductResult {
+  name, brand, unit, image_url, product_url,
+  mrp, selling_price, in_stock, delivery_eta, source, raw
+}
+```
+
+Parsing/normalization is centralized in `providers/base.py` (`build_product`,
+`parse_money`, `styled_text`, `extract_unit`) so no provider duplicates logic.
 
 ---
 
@@ -122,8 +139,8 @@ pricepulse/
 |-------|---------|
 | `Product` | Catalog item (`name`, `brand`, `category`, `barcode`, `image` / `image_url`) |
 | `Brand` / `Category` | Normalized taxonomy |
-| `Store` | Blinkit / Zepto / Instamart metadata |
-| `CurrentPrice` | Latest `(product, store)` price + stock + product URL |
+| `Store` | Blinkit / Zepto / Instamart / BigBasket metadata |
+| `CurrentPrice` | Latest `(product, store)` price, MRP, stock, delivery ETA, product URL |
 | `PriceHistory` | Append-only snapshots for charts & drops |
 | `PriceAlert` | User/guest target-price subscriptions |
 | `NotificationLog` | Delivery audit (staff) |
@@ -152,7 +169,45 @@ Each provider implements:
 | `hybrid` | Try live providers → FakeProvider if empty |
 | `live` | Live only (may return nothing when WAF blocks) |
 
-**Verified live path (2026):** Blinkit/Zepto block cold HTTP (403/429). Chromium via Playwright intercepts the same consumer JSON. Optional aggregators (`QUICKCOMMERCE_API_KEY`, `PARSE_API_KEY`) are supported when keyed.
+Each provider follows the same flow: **optional aggregator → cold HTTP (usually
+blocked) → Playwright JSON interception → DOM fallback → `[]`**. Results are
+cached for 5 minutes per `(provider, query, lat/lon)`, and collection fetches
+run concurrently on a thread pool (`PROVIDER_MAX_WORKERS`). Adding a new store
+means dropping in `providers/new_provider.py` and registering it — no service
+layer changes.
+
+### Blinkit integration
+Cold `GET https://blinkit.com/v1/layout/search` returns 403/404 outside a
+browser. A Chromium session loads the same `layout/search` JSON, which we
+intercept; DOM price cards are the fallback.
+
+### Zepto integration
+Public API is gone; the BFF `user-search-service/api/v3/search` returns 429 cold.
+Playwright on the search page intercepts the same BFF POST (prices in paise),
+with a DOM fallback.
+
+### Swiggy Instamart integration
+Instamart runs through Swiggy's authenticated APIs; anonymous `api/instamart/search`
+calls are rejected. Playwright loads the Instamart search page and we intercept
+the consumer JSON (product `variations`), with a DOM fallback. Falls back to
+FakeProvider in hybrid mode when the session is challenged.
+
+### BigBasket integration
+`listing-svc/v2/products` is Akamai-guarded against anonymous clients. Playwright
+on `bigbasket.com/ps/?q=` intercepts the `listing-svc` JSON
+(`pricing.discount.prim_price.sp`, `images[].m`, `absolute_url`), with a DOM
+fallback.
+
+> **Honest note:** these platforms have no public APIs and actively block bots.
+> Live capture works in a real browser session but is inherently brittle and
+> region-locked. That is exactly why the hybrid `FakeProvider` fallback exists —
+> demos stay populated and deterministic regardless of anti-bot state.
+
+### Store logos & images
+Store logos are **self-hosted** SVGs in `frontend/public/logos/` (no
+`cdn.grofers.com` / remote logos). Product images come only from live provider
+`image_url`s; when absent the UI shows a local
+`public/images/product-placeholder.svg` — never random stock photography.
 
 ---
 
@@ -184,7 +239,12 @@ docker compose up --build
 
 Compose injects env for services (no `backend/.env` required). Backend only runs migrate + seed + initial fake collect. Celery/beat skip bootstrap (`RUN_BOOTSTRAP=0`).
 
-> Default `PROVIDER_MODE=fake` for reliable demos. For live Blinkit/Zepto: set `PROVIDER_MODE=hybrid`, `PROVIDER_USE_PLAYWRIGHT=True`, and install Chromium in the image (`playwright install --with-deps chromium`).
+> Default `PROVIDER_MODE=fake` for reliable demos. For live providers: set `PROVIDER_MODE=hybrid`, `PROVIDER_USE_PLAYWRIGHT=True`, install Chromium in the image (`playwright install --with-deps chromium`), and lower `PROVIDER_MAX_WORKERS` (2–3) so concurrent browser launches stay stable.
+
+> **Windows / OneDrive gotcha:** if `docker compose up --build` fails with
+> `invalid file request Dockerfile`, the repo is inside a OneDrive folder whose
+> files are cloud "reparse points" Docker can't read. Move/clone the project to a
+> plain local path (e.g. `C:\dev\pricepulse`) and rebuild.
 
 ---
 
@@ -243,9 +303,9 @@ Core routes:
 
 | Method | Path | Notes |
 |--------|------|-------|
-| GET | `/api/v1/products/` | Search + pagination |
+| GET | `/api/v1/products/` | Search + pagination (DB-first; `?search=` triggers async stale refresh) |
 | GET | `/api/v1/products/{id}/` | Detail |
-| GET | `/api/v1/prices/product/{id}/` | Current store prices |
+| GET | `/api/v1/prices/product/{id}/` | Current store prices (price, MRP, discount %, ETA, logo, URL) |
 | GET | `/api/v1/products/{id}/history/` | History |
 | GET | `/api/v1/analytics/summary/` | Dashboard aggregates |
 | POST | `/api/v1/alerts/` | Create alert (guest email required) |
@@ -266,8 +326,8 @@ Core routes:
 
 ## Future Improvements
 
-- Instamart live provider (auth/cookies)
-- Playwright browser pool for faster hybrid collect
+- Authenticated Instamart/BigBasket sessions (cookies/device tokens) for higher live hit rates
+- Playwright browser pool for faster, safer concurrent hybrid collect
 - Per-user cloud wishlist sync
 - Production nginx multi-stage frontend image
 - Stronger barcode GTINs + unit normalization

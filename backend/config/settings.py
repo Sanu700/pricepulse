@@ -179,7 +179,12 @@ PROVIDER_MODE = os.getenv("PROVIDER_MODE", "hybrid")  # fake | hybrid | live
 PROVIDER_TIMEOUT = int(os.getenv("PROVIDER_TIMEOUT", "8"))
 PROVIDER_MAX_RETRIES = int(os.getenv("PROVIDER_MAX_RETRIES", "2"))
 PROVIDER_RATE_LIMIT_PER_MINUTE = int(os.getenv("PROVIDER_RATE_LIMIT_PER_MINUTE", "30"))
-PROVIDER_CACHE_TTL = int(os.getenv("PROVIDER_CACHE_TTL", "600"))
+# Provider search cache TTL (seconds). 5 minutes per the multi-provider spec.
+PROVIDER_CACHE_TTL = int(os.getenv("PROVIDER_CACHE_TTL", "300"))
+# Max concurrent provider fetches during collection.
+PROVIDER_MAX_WORKERS = int(os.getenv("PROVIDER_MAX_WORKERS", "8"))
+# How old current prices may be before a search triggers a background refresh.
+PROVIDER_STALE_SECONDS = int(os.getenv("PROVIDER_STALE_SECONDS", "900"))
 PROVIDER_USE_PLAYWRIGHT = os.getenv("PROVIDER_USE_PLAYWRIGHT", "True").lower() in (
     "1",
     "true",

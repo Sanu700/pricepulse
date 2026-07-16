@@ -1,26 +1,20 @@
 import { useState } from "react";
-import { Package } from "lucide-react";
+
+const PLACEHOLDER = "/images/product-placeholder.svg";
 
 /**
  * Product image with graceful fallback — never leaves a broken <img>.
+ * On error (or when no src is provided) it renders the local placeholder,
+ * so we never show random remote imagery or broken image icons.
  */
-function ProductImage({ src, alt = "", className = "h-full w-full object-contain p-3", iconSize = 48 }) {
+function ProductImage({ src, alt = "", className = "h-full w-full object-contain p-3" }) {
   const [failed, setFailed] = useState(false);
-  const showImage = Boolean(src) && !failed;
-
-  if (!showImage) {
-    return (
-      <div className="flex h-full w-full items-center justify-center bg-canvas">
-        <Package size={iconSize} className="text-slate-300" aria-hidden />
-        <span className="sr-only">{alt || "No product image"}</span>
-      </div>
-    );
-  }
+  const resolvedSrc = !src || failed ? PLACEHOLDER : src;
 
   return (
     <img
-      src={src}
-      alt={alt}
+      src={resolvedSrc}
+      alt={alt || "Product image"}
       className={className}
       loading="lazy"
       decoding="async"

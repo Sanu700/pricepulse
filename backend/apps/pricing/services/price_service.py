@@ -11,14 +11,19 @@ class PriceService:
         in_stock = bool(data.get("in_stock", True))
         product_url = data.get("product_url")
         image_url = data.get("image_url")
+        delivery_eta = data.get("delivery_eta")
+        mrp = data.get("mrp")
+        mrp_dec = Decimal(str(mrp)) if mrp not in (None, "") else None
 
         current_price, created = CurrentPrice.objects.get_or_create(
             product=product,
             store=store,
             defaults={
                 "price": new_price,
+                "mrp": mrp_dec,
                 "in_stock": in_stock,
                 "product_url": product_url,
+                "delivery_eta": delivery_eta,
             },
         )
 
@@ -38,11 +43,26 @@ class PriceService:
 
             current_price.price = new_price
             current_price.in_stock = in_stock
+            if mrp_dec is not None:
+                current_price.mrp = mrp_dec
+            # Never overwrite an existing product URL / ETA with NULL.
             if product_url:
                 current_price.product_url = product_url
-            current_price.save(update_fields=["price", "in_stock", "product_url", "last_updated"])
+            if delivery_eta:
+                current_price.delivery_eta = delivery_eta
+            current_price.save(
+                update_fields=[
+                    "price",
+                    "mrp",
+                    "in_stock",
+                    "product_url",
+                    "delivery_eta",
+                    "last_updated",
+                ]
+            )
 
-        # Persist provider image onto the catalog product when missing
+        # Persist provider image onto the catalog product when missing.
+        # Never overwrite an existing image with NULL.
         if image_url and not product.image_url and not product.image:
             product.image_url = str(image_url)[:500]
             product.save(update_fields=["image_url", "updated_at"])

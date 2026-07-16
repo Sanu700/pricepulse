@@ -140,7 +140,6 @@ function Wishlist() {
                     src={product.image_url}
                     alt={product.name}
                     className="h-full w-full object-contain p-2"
-                    iconSize={36}
                   />
                 </Link>
                 <h3 className="truncate font-semibold text-ink">{product.name}</h3>

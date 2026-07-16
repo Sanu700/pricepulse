@@ -58,13 +58,19 @@ class FakeProvider(BaseProvider):
         price = self._price_for(product.name)
         digest = hashlib.md5(f"stock:{self.store_slug}:{product.id}".encode()).hexdigest()
         in_stock = int(digest[:2], 16) % 10 != 0
+        # Deterministic MRP a little above selling price so a discount % renders
+        mrp = (price * Decimal("1.12")).quantize(Decimal("0.01"))
+        eta = f"{8 + int(digest[2:3], 16) % 8} mins"
         # Prefer catalog image so cards stay populated in fake/hybrid fallbacks
         image_url = getattr(product, "image_url", None)
         return {
             "price": price,
+            "mrp": mrp,
             "in_stock": in_stock,
             "product_url": None,
             "image_url": image_url,
+            "delivery_eta": eta,
             "external_id": f"fake-{product.id}",
             "normalized_name": product.name,
+            "source": self.name,
         }

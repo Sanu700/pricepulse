@@ -69,7 +69,7 @@ class BlinkitProvider(BaseProvider):
             return []
 
         try:
-            return cached_json(cache_key, ttl=self.cache_ttl, loader=loader) or []
+            return self._finalize(cached_json(cache_key, ttl=self.cache_ttl, loader=loader) or [])
         except Exception as exc:  # noqa: BLE001
             logger.warning("Blinkit search error for %r: %s", query, exc)
             return []

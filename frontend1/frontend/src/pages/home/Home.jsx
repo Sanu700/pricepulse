@@ -12,6 +12,7 @@ import {
 import { useAnalytics, useProducts, useStores } from "../../hooks/useProducts";
 import ProductCard from "../../components/products/ProductCard";
 import HeroSearch from "../../components/common/HeroSearch";
+import StoreLogo from "../../components/common/StoreLogo";
 import Skeleton from "../../components/common/Skeleton";
 import ErrorState from "../../components/common/ErrorState";
 
@@ -111,18 +112,15 @@ function Home() {
             <p className="section-sub">One search, three quick-commerce apps</p>
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
           {(stores?.length ? stores : [
             { id: 1, name: "Blinkit" },
             { id: 2, name: "Zepto" },
             { id: 3, name: "Instamart" },
+            { id: 4, name: "BigBasket" },
           ]).map((s) => (
             <div key={s.id ?? s.name} className="card flex flex-col items-center gap-2 p-4 sm:p-6">
-              {s.logo ? (
-                <img src={s.logo} alt={s.name} className="h-10 w-10 object-contain" onError={(e) => { e.currentTarget.style.display = "none"; }} />
-              ) : (
-                <Store size={28} className="text-primary" />
-              )}
+              <StoreLogo name={s.name} size={40} />
               <p className="text-sm font-semibold text-ink">{s.name}</p>
             </div>
           ))}

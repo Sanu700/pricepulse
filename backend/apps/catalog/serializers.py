@@ -101,8 +101,9 @@ class ProductSerializer(serializers.ModelSerializer):
 
 class CurrentPriceNestedSerializer(serializers.ModelSerializer):
     store = serializers.CharField(source="store.name")
-    store_logo = serializers.URLField(source="store.logo", allow_null=True)
+    store_logo = serializers.SerializerMethodField()
     store_website = serializers.URLField(source="store.website", allow_null=True)
+    discount_percent = serializers.SerializerMethodField()
 
     class Meta:
         model = CurrentPrice
@@ -111,10 +112,23 @@ class CurrentPriceNestedSerializer(serializers.ModelSerializer):
             "store_logo",
             "store_website",
             "price",
+            "mrp",
+            "discount_percent",
             "in_stock",
             "product_url",
+            "delivery_eta",
             "last_updated",
         ]
+
+    def get_store_logo(self, obj):
+        from apps.pricing.serializers import store_logo_path
+
+        return store_logo_path(obj.store.name)
+
+    def get_discount_percent(self, obj):
+        from apps.pricing.serializers import discount_percent
+
+        return discount_percent(obj.mrp, obj.price)
 
 
 class ProductPriceComparisonSerializer(serializers.ModelSerializer):
