@@ -38,7 +38,6 @@ services:
       timeout: 5s
       retries: 12
       start_period: 40s
-    command: python manage.py runserver 0.0.0.0:8000
 
   frontend:
     build: ./frontend1/frontend
@@ -49,6 +48,7 @@ services:
       - /app/node_modules
     environment:
       VITE_API_URL: http://localhost:8000/api/v1
+      VITE_API_DOCS_URL: http://localhost:8000/api/docs/
     depends_on:
       backend:
         condition: service_healthy

@@ -20,43 +20,49 @@ export default function HeroSearch({
   size = "lg",
 }) {
   const [suggestions, setSuggestions] = useState([]);
-  const [open, setOpen] = useState(false);
+  const [focused, setFocused] = useState(false);
   const [loading, setLoading] = useState(false);
   const wrapRef = useRef(null);
   const timer = useRef(null);
+  const requestIdRef = useRef(0);
+  const query = value?.trim() ?? "";
+  const showDropdown = focused && query.length >= 2;
 
   useEffect(() => {
     function onDocClick(e) {
-      if (!wrapRef.current?.contains(e.target)) setOpen(false);
+      if (!wrapRef.current?.contains(e.target)) setFocused(false);
     }
     document.addEventListener("mousedown", onDocClick);
     return () => document.removeEventListener("mousedown", onDocClick);
   }, []);
 
   useEffect(() => {
-    const q = value?.trim() ?? "";
-    if (q.length < 2) {
-      setSuggestions([]);
-      setOpen(false);
+    if (query.length < 2) {
       return;
     }
 
     clearTimeout(timer.current);
+    const requestId = ++requestIdRef.current;
     timer.current = setTimeout(async () => {
       setLoading(true);
       try {
-        const rows = await searchSuggestions(q);
-        setSuggestions(rows);
-        setOpen(true);
+        const rows = await searchSuggestions(query);
+        if (requestId === requestIdRef.current) {
+          setSuggestions(rows);
+        }
       } catch {
-        setSuggestions([]);
+        if (requestId === requestIdRef.current) {
+          setSuggestions([]);
+        }
       } finally {
-        setLoading(false);
+        if (requestId === requestIdRef.current) {
+          setLoading(false);
+        }
       }
     }, 220);
 
     return () => clearTimeout(timer.current);
-  }, [value]);
+  }, [query]);
 
   const pad = size === "lg" ? "py-4 pl-12 pr-12 text-base" : "py-2.5 pl-10 pr-10 text-sm";
 
@@ -65,7 +71,7 @@ export default function HeroSearch({
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          setOpen(false);
+          setFocused(false);
           onSubmit?.(value);
         }}
         className="relative"
@@ -79,7 +85,7 @@ export default function HeroSearch({
         <input
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          onFocus={() => suggestions.length > 0 && setOpen(true)}
+          onFocus={() => setFocused(true)}
           placeholder={placeholder}
           autoFocus={autoFocus}
           className={`input-field ${pad} shadow-sm`}
@@ -91,8 +97,7 @@ export default function HeroSearch({
             type="button"
             onClick={() => {
               onChange("");
-              setSuggestions([]);
-              setOpen(false);
+              setFocused(false);
             }}
             className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 text-muted hover:bg-canvas hover:text-ink"
             aria-label="Clear search"
@@ -102,7 +107,7 @@ export default function HeroSearch({
         )}
       </form>
 
-      {open && (
+      {showDropdown && (
         <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-50 overflow-hidden rounded-2xl border border-line bg-surface shadow-[var(--shadow-card-hover)]">
           {loading && (
             <p className="px-4 py-3 text-sm text-muted">Searching…</p>
@@ -115,7 +120,7 @@ export default function HeroSearch({
               <Link
                 key={p.id}
                 to={`/products/${p.id}`}
-                onClick={() => setOpen(false)}
+                onClick={() => setFocused(false)}
                 className="flex items-center justify-between gap-3 border-b border-line px-4 py-3 last:border-0 hover:bg-canvas"
               >
                 <div className="min-w-0">

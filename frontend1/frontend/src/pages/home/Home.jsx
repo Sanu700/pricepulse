@@ -39,7 +39,7 @@ function Home() {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const { data: products, isLoading, error } = useProducts({ page_size: 6 });
-  const { data: analytics } = useAnalytics();
+  const { data: analytics, error: analyticsError } = useAnalytics();
   const { data: stores } = useStores();
 
   const list = products ?? [];
@@ -76,7 +76,8 @@ function Home() {
             Find the cheapest grocery deals near you
           </h1>
           <p className="mx-auto mt-3 max-w-lg text-muted">
-            Compare live prices across Blinkit, Zepto, and Instamart — and never overpay again.
+            Compare live prices across Blinkit, Zepto, Instamart, and BigBasket
+            without opening four tabs.
           </p>
           <div className="mx-auto mt-8 max-w-xl">
             <HeroSearch
@@ -109,7 +110,7 @@ function Home() {
         <div className="mb-4 flex items-end justify-between">
           <div>
             <h2 className="section-title">Stores we compare</h2>
-            <p className="section-sub">One search, three quick-commerce apps</p>
+            <p className="section-sub">One search, four grocery providers</p>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
@@ -130,7 +131,7 @@ function Home() {
       {/* Stats */}
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatPill icon={Package} label="Products tracked" value={analytics?.products_tracked ?? list.length} />
-        <StatPill icon={Store} label="Stores" value={analytics?.stores_compared ?? stores?.length ?? 3} />
+        <StatPill icon={Store} label="Stores" value={analytics?.stores_compared ?? stores?.length ?? 4} />
         <StatPill icon={PiggyBank} label="Avg. savings" value={formatINR(analytics?.average_savings)} />
         <StatPill
           icon={TrendingDown}
@@ -142,6 +143,13 @@ function Home() {
           }
         />
       </section>
+
+      {analyticsError && (
+        <ErrorState
+          title="Analytics temporarily unavailable"
+          description="Product browsing still works, but summary trends couldn't be loaded."
+        />
+      )}
 
       {/* Cheapest deals */}
       <section>

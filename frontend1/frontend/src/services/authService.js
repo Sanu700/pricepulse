@@ -19,13 +19,3 @@ export async function createPriceAlert(payload) {
   const response = await api.post("/alerts/", payload);
   return response.data;
 }
-
-export async function getNotifications() {
-  const response = await api.get("/notifications/");
-  return response.data;
-}
-
-export async function getNotificationStatus() {
-  const response = await api.get("/notifications/status/");
-  return response.data;
-}

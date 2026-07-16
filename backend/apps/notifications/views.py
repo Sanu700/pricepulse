@@ -41,6 +41,14 @@ class PriceAlertSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {"email": "Email is required for guest price alerts."}
             )
+        if user and user.is_authenticated:
+            account_email = (getattr(user, "email", "") or "").strip()
+            if account_email and email and email.lower() != account_email.lower():
+                raise serializers.ValidationError(
+                    {"email": "Authenticated alerts must use your account email."}
+                )
+            if account_email:
+                attrs["email"] = account_email
         return attrs
 
 
@@ -90,8 +98,7 @@ class NotificationLogListAPIView(generics.ListAPIView):
 class NotificationStatusAPIView(APIView):
     """Expose whether real SMTP email delivery is wired up."""
 
-    authentication_classes = []
-    permission_classes = []
+    permission_classes = [permissions.IsAdminUser]
 
     def get(self, request):
         from django.conf import settings

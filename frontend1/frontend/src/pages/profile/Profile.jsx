@@ -1,26 +1,31 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { User, LogOut, Mail, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "../../hooks/useAuth";
 import { getProfile } from "../../services/authService";
 import Skeleton from "../../components/common/Skeleton";
+import ErrorState from "../../components/common/ErrorState";
 
 function Profile() {
   const { logout, isGuest, token } = useAuth();
   const navigate = useNavigate();
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const {
+    data: profile,
+    isLoading: loading,
+    isError,
+  } = useQuery({
+    queryKey: ["profile", token],
+    queryFn: getProfile,
+    enabled: Boolean(token) && !isGuest,
+    retry: 0,
+  });
 
   useEffect(() => {
-    if (!token || isGuest) return;
-    setLoading(true);
-    getProfile()
-      .then(setProfile)
-      .catch(() => toast.error("Could not load profile"))
-      .finally(() => setLoading(false));
-  }, [token, isGuest]);
+    if (isError) toast.error("Could not load profile");
+  }, [isError]);
 
   return (
     <div className="mx-auto max-w-2xl space-y-8">
@@ -43,6 +48,11 @@ function Profile() {
           </div>
         ) : loading ? (
           <Skeleton className="h-16" />
+        ) : isError ? (
+          <ErrorState
+            title="Profile unavailable"
+            description="We couldn't load your account details right now."
+          />
         ) : (
           <div className="flex items-center gap-4">
             <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-soft text-primary">

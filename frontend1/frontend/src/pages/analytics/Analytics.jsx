@@ -115,9 +115,9 @@ function Analytics() {
         <section className="card p-5">
           <h2 className="mb-4 text-lg font-semibold text-ink">Recent drops</h2>
           <div className="space-y-2">
-            {data.recent_drops.map((d, i) => (
+            {data.recent_drops.map((d) => (
               <Link
-                key={`${d.product_id}-${i}`}
+                key={`${d.product_id}-${d.store}`}
                 to={`/products/${d.product_id}`}
                 className="flex items-center justify-between rounded-xl border border-line px-4 py-3 hover:bg-canvas"
               >

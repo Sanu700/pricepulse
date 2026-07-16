@@ -22,7 +22,7 @@ function formatINR(v) {
 
 function Dashboard() {
   const { data: products, isLoading, error } = useProducts();
-  const { data: analytics, isLoading: analyticsLoading } = useAnalytics();
+  const { data: analytics, isLoading: analyticsLoading, error: analyticsError } = useAnalytics();
   const { items: wishlist } = useWishlist();
 
   if (isLoading || analyticsLoading) {
@@ -38,7 +38,7 @@ function Dashboard() {
     );
   }
 
-  if (error) {
+  if (error || analyticsError) {
     return <ErrorState description="Dashboard data unavailable. Check API connectivity." />;
   }
 
@@ -86,9 +86,9 @@ function Dashboard() {
             />
           ) : (
             <div className="space-y-2">
-              {drops.map((d, i) => (
+              {drops.map((d) => (
                 <Link
-                  key={`${d.product_id}-${i}`}
+                  key={`${d.product_id}-${d.store}`}
                   to={`/products/${d.product_id}`}
                   className="flex items-center justify-between rounded-xl border border-line px-4 py-3 transition hover:bg-canvas"
                 >

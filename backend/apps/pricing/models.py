@@ -90,6 +90,12 @@ class CurrentPrice(models.Model):
             models.Index(
                 fields=["store"],
             ),
+            models.Index(
+                fields=["product", "price"],
+            ),
+            models.Index(
+                fields=["product", "-last_updated"],
+            ),
         ]
 
     def __str__(self):
@@ -131,6 +137,9 @@ class PriceHistory(models.Model):
             ),
             models.Index(
                 fields=["store", "-recorded_at"],
+            ),
+            models.Index(
+                fields=["product", "store", "-recorded_at"],
             ),
         ]
 

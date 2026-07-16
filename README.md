@@ -1,369 +1,259 @@
 # PricePulse
 
-**Compare grocery prices across Blinkit, Zepto, Swiggy Instamart, and BigBasket — in one place.**
+Compare grocery prices across **Blinkit**, **Zepto**, **Swiggy Instamart**, and **BigBasket** in one place.
 
-PricePulse is a full-stack grocery price comparison app: live (or simulated) multi-store prices, history charts, price-drop alerts, analytics, and a polished React UI. Built as a production-quality portfolio project.
-
----
+PricePulse is a full-stack grocery price comparison app built to look and behave like a real product: multi-store comparisons, history charts, alerts, analytics, and a polished UI. It is designed to run locally via Docker and be explainable in technical interviews.
 
 ## Overview
 
-Shoppers waste money because the same SKU costs different amounts on Blinkit vs Zepto vs Instamart vs BigBasket. PricePulse:
+The same SKU can have different prices across stores. PricePulse:
+1. Tracks a small catalog of products.
+2. Collects current prices per store through a provider layer.
+3. Stores history for charts and drop detection.
+4. Shows cheapest store, savings, and deep links to the store product page.
 
-1. Tracks a catalog of everyday grocery products  
-2. Collects current prices per store through a provider layer  
-3. Stores history for trend charts and drop detection  
-4. Surfaces cheapest store, savings, and alerts in a modern web app  
-
-Guest mode lets reviewers demo the product without registering.
-
----
+Guest mode allows a full demo without registering.
 
 ## Features
-
-- Multi-store price comparison (Blinkit · Zepto · Instamart · BigBasket)
-- Product catalog with search, filters, and product detail pages
-- Comparison table with MRP, discount %, delivery ETA, stock, and "Visit store" deep links
-- Self-hosted store logos + local product placeholder (no remote CDNs, no broken images)
-- Price history charts and product stats
-- Dashboard analytics (drops, cheapest picks, store overview)
-- Wishlist (local) + price alerts (email / console)
-- JWT auth (register / login / refresh) + guest browsing
-- Single normalized provider schema + hybrid FakeProvider fallback
-- Playwright-backed JSON interception for all four live providers when enabled
-- Concurrent multi-provider collection + 5-minute provider cache
-- DB-first search with background stale refresh
-- Celery beat scheduled collection
-- Docker Compose one-command local stack
-- OpenAPI docs via drf-spectacular
-
----
-
-## Screenshots
-
-> Placeholder slots — drop PNGs into `docs/screenshots/` when available.
-
-| Home | Products | Product detail |
-|------|----------|----------------|
-| `docs/screenshots/home.png` | `docs/screenshots/products.png` | `docs/screenshots/detail.png` |
-
-| Dashboard | Analytics | Login / Guest |
-|-----------|-----------|---------------|
-| `docs/screenshots/dashboard.png` | `docs/screenshots/analytics.png` | `docs/screenshots/login.png` |
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|-------|------------|
-| Backend | Django 6, Django REST Framework, SimpleJWT |
-| Workers | Celery, django-celery-beat schedule, Redis |
-| Database | PostgreSQL 17 |
-| Frontend | Vite 8, React 19, React Router 7, TanStack Query 5 |
-| UI | Tailwind CSS v4, Framer Motion, Recharts, Lucide |
-| Providers | httpx, Playwright (optional), FakeProvider |
-| Ops | Docker Compose, WhiteNoise, Gunicorn (image default) |
-
----
+- Multi-provider comparison (Blinkit · Zepto · Instamart · BigBasket)
+- Product list search + filters + details page
+- Store comparison table including **MRP**, **discount %**, **ETA**, stock, and “Visit store” link
+- Price history + per-product stats
+- Dashboard + analytics summaries
+- Wishlist (local) + price alerts (guest email required)
+- JWT auth (register/login/refresh) + guest session
+- Hybrid provider mode: live providers (best-effort) with deterministic fallback
+- Background collection (Celery + beat)
+- Docker Compose local stack
 
 ## Architecture
 
-```
-┌─────────────┐     JWT / Guest      ┌──────────────────┐
-│  React SPA  │ ◄──────────────────► │  Django DRF API  │
-│  :5173      │                      │  :8000           │
-└─────────────┘                      └────────┬─────────┘
-                                              │
-                     ┌────────────────────────┼────────────────────────┐
-                     │                        │                        │
-                     ▼                        ▼                        ▼
-               PostgreSQL                  Redis                  Celery Worker
-               (catalog,                   (broker +               + Beat
-                prices,                     cache)                (collect)
-                history)
-                                              │
-                                              ▼
-                                    Provider registry
-                    ┌──────────┬──────────┬───────────┬───────────┐
-                    │ Blinkit  │  Zepto   │ Instamart │ BigBasket │
-                    │(Playwright(Playwright(Playwright │(Playwright│
-                    │  /JSON)  │  /BFF)   │  /JSON)   │/listing-  │
-                    │          │          │           │  svc)     │
-                    └────┬─────┴────┬─────┴─────┬─────┴─────┬─────┘
-                         │          │           │           │
-                         └──────────┴───────────┴───────────┘
-                                 FakeProvider
-                              (hybrid fallback)
-```
+```mermaid
+flowchart LR
+  FE[React SPA] -->|HTTP| API[Django DRF API]
+  API --> PG[(PostgreSQL)]
+  API --> RC[(Redis cache)]
+  API --> DOCS[OpenAPI docs]
+  BEAT[Celery Beat] --> W[Celery Worker]
+  W --> PG
+  W --> RC
 
-All providers return a single normalized schema:
+  subgraph Providers
+    BL[Blinkit]
+    ZP[Zepto]
+    IM[Instamart]
+    BB[BigBasket]
+    FK[FakeProvider]
+  end
 
+  W --> BL
+  W --> ZP
+  W --> IM
+  W --> BB
+  W -->|hybrid fallback| FK
 ```
-ProductResult {
-  name, brand, unit, image_url, product_url,
-  mrp, selling_price, in_stock, delivery_eta, source, raw
-}
-```
-
-Parsing/normalization is centralized in `providers/base.py` (`build_product`,
-`parse_money`, `styled_text`, `extract_unit`) so no provider duplicates logic.
-
----
 
 ## Folder Structure
 
-```
+```text
 pricepulse/
-├── backend/
-│   ├── apps/
-│   │   ├── accounts/          # User + JWT register/profile
-│   │   ├── catalog/           # Products, brands, categories
-│   │   ├── pricing/           # Stores, prices, history, providers, Celery
-│   │   └── notifications/     # Alerts + delivery
-│   ├── common/                # Health, pagination
-│   ├── config/                # Django settings, Celery, URLs
-│   ├── scripts/               # Provider probes / verification
-│   ├── entrypoint.py          # Docker boot (migrate/seed/collect)
-│   └── Dockerfile
-├── frontend1/frontend/        # Vite React app
-├── docker-compose.yml
-└── README.md
+  backend/
+    apps/
+      accounts/        # User + profile
+      catalog/         # Products/brands/categories
+      pricing/         # Stores, prices, history, providers, collection
+      notifications/   # Alerts + notification delivery
+    common/            # Health, pagination
+    config/            # Settings, URLs, Celery config
+    entrypoint.py      # Docker bootstrap helper
+    Dockerfile
+  frontend1/frontend/  # React/Vite SPA
+  docs/                # Architecture + deployment docs
+  docker-compose.yml
+  README.md
 ```
 
----
+## Tech Stack
 
-## Database Design
-
-| Model | Purpose |
-|-------|---------|
-| `Product` | Catalog item (`name`, `brand`, `category`, `barcode`, `image` / `image_url`) |
-| `Brand` / `Category` | Normalized taxonomy |
-| `Store` | Blinkit / Zepto / Instamart / BigBasket metadata |
-| `CurrentPrice` | Latest `(product, store)` price, MRP, stock, delivery ETA, product URL |
-| `PriceHistory` | Append-only snapshots for charts & drops |
-| `PriceAlert` | User/guest target-price subscriptions |
-| `NotificationLog` | Delivery audit (staff) |
-| `User` | Custom accounts model |
-
-Unique constraint on `CurrentPrice(product, store)`. History indexed by `(product, -recorded_at)`.
-
----
+Backend: Django, DRF, SimpleJWT  
+Workers: Celery, django-celery-beat  
+Database: PostgreSQL  
+Cache/Broker: Redis  
+Frontend: React, Vite, React Router, TanStack Query  
+UI: Tailwind, Framer Motion, Recharts  
+Providers: httpx + optional Playwright (best-effort)
 
 ## Provider Architecture
 
-Each provider implements:
+### Normalized schema
 
-- `search(query)`
-- `get_product(external_id)`
-- `get_current_price(external_id)`
-- `get_availability(external_id)`
-- `get_store()`
-- `fetch_price_for_catalog_product(product)` — fuzzy/barcode match into catalog
+All providers normalize into:
 
-**`PROVIDER_MODE`**
+```text
+ProductResult {
+  name, brand, unit,
+  image_url, product_url,
+  mrp, selling_price,
+  in_stock, delivery_eta,
+  source, raw
+}
+```
 
-| Mode | Behavior |
-|------|----------|
-| `fake` | Deterministic demo prices (default in Docker for clean boots) |
-| `hybrid` | Try live providers → FakeProvider if empty |
-| `live` | Live only (may return nothing when WAF blocks) |
+Normalization utilities live in `backend/apps/pricing/providers/base.py` (`build_product`, `parse_money`, `styled_text`, `extract_unit`) so parsing logic is not duplicated across providers.
 
-Each provider follows the same flow: **optional aggregator → cold HTTP (usually
-blocked) → Playwright JSON interception → DOM fallback → `[]`**. Results are
-cached for 5 minutes per `(provider, query, lat/lon)`, and collection fetches
-run concurrently on a thread pool (`PROVIDER_MAX_WORKERS`). Adding a new store
-means dropping in `providers/new_provider.py` and registering it — no service
-layer changes.
+### Why Playwright + Hybrid Mode
 
-### Blinkit integration
-Cold `GET https://blinkit.com/v1/layout/search` returns 403/404 outside a
-browser. A Chromium session loads the same `layout/search` JSON, which we
-intercept; DOM price cards are the fallback.
+These platforms do not provide stable public APIs and aggressively block cold HTTP scraping. Playwright interception works in a real browser session, but is inherently brittle and region-dependent. Hybrid mode keeps the product usable by falling back to deterministic demo data when live capture fails.
 
-### Zepto integration
-Public API is gone; the BFF `user-search-service/api/v3/search` returns 429 cold.
-Playwright on the search page intercepts the same BFF POST (prices in paise),
-with a DOM fallback.
+Provider flow (all four providers):
+1. Optional aggregator (if configured)
+2. Cold HTTP (often blocked)
+3. Playwright JSON interception (best-effort)
+4. DOM fallback (heuristic)
+5. Return `[]` so hybrid mode can fall back
 
-### Swiggy Instamart integration
-Instamart runs through Swiggy's authenticated APIs; anonymous `api/instamart/search`
-calls are rejected. Playwright loads the Instamart search page and we intercept
-the consumer JSON (product `variations`), with a DOM fallback. Falls back to
-FakeProvider in hybrid mode when the session is challenged.
+### Logos & images
 
-### BigBasket integration
-`listing-svc/v2/products` is Akamai-guarded against anonymous clients. Playwright
-on `bigbasket.com/ps/?q=` intercepts the `listing-svc` JSON
-(`pricing.discount.prim_price.sp`, `images[].m`, `absolute_url`), with a DOM
-fallback.
+Store logos are self-hosted: `frontend1/frontend/public/logos/*.svg` (no remote CDNs).  
+Product images come only from provider `image_url` and persist to `Product.image_url`; otherwise the UI uses `public/images/product-placeholder.svg`.
 
-> **Honest note:** these platforms have no public APIs and actively block bots.
-> Live capture works in a real browser session but is inherently brittle and
-> region-locked. That is exactly why the hybrid `FakeProvider` fallback exists —
-> demos stay populated and deterministic regardless of anti-bot state.
+## Search Flow (DB-first freshness)
 
-### Store logos & images
-Store logos are **self-hosted** SVGs in `frontend/public/logos/` (no
-`cdn.grofers.com` / remote logos). Product images come only from live provider
-`image_url`s; when absent the UI shows a local
-`public/images/product-placeholder.svg` — never random stock photography.
+```mermaid
+sequenceDiagram
+  participant UI
+  participant API
+  participant Cache
+  participant Celery
+  participant DB
 
----
+  UI->>API: GET /api/v1/products/?search=q
+  API->>DB: query products + current prices
+  API-->>UI: response immediately
+  API->>Cache: acquire lock "search-refresh:q"
+  alt stale & lock acquired
+    API->>Celery: refresh_products_prices(product_ids)
+  else fresh or lock held
+    API-->>API: no refresh
+  end
+```
 
-## JWT Authentication
+## Collection Flow
 
-- `POST /api/v1/accounts/register/`
-- `POST /api/v1/accounts/login/` (TokenObtainPair)
-- `POST /api/v1/accounts/refresh/`
-- `GET /api/v1/accounts/profile/` (authenticated)
+```mermaid
+sequenceDiagram
+  participant Beat
+  participant Worker
+  participant Provider
+  participant DB
 
-Access ≈ 30 minutes · Refresh ≈ 7 days. Frontend axios interceptor refreshes on 401 and syncs `AuthContext`.
+  Beat->>Worker: collect_prices
+  loop product × store
+    Worker->>Provider: fetch_price_for_catalog_product(product)
+    Provider-->>Worker: normalized data | None
+    Worker->>DB: upsert CurrentPrice
+    Worker->>DB: append PriceHistory (when changed)
+  end
+```
 
----
+## Background Jobs
 
-## Docker Setup
+Celery beat schedules periodic collection (`apps.pricing.tasks.collect_prices`). Search freshness may trigger targeted refresh via `refresh_products_prices`.
+
+## Database Design
+
+- `catalog.Product` stores `image_url` (persisted from providers) plus an optional uploaded image.
+- `pricing.CurrentPrice` stores the latest store price for each `(product, store)` including MRP, ETA, URL.
+- `pricing.PriceHistory` stores snapshots used for charts and drop detection.
+
+Indexes are added for the query patterns used by list endpoints and stats.
+
+## Docker (Local)
 
 ```bash
 docker compose up --build
 ```
 
-| Service | URL |
-|---------|-----|
-| Frontend | http://localhost:5173 |
-| Backend API | http://localhost:8000 |
-| API docs | http://localhost:8000/api/docs/ |
-| Health | http://localhost:8000/health/ |
-| Postgres | localhost:5432 |
-| Redis | localhost:6380 → container 6379 |
+Services:
+- Frontend: http://localhost:5173
+- Backend: http://localhost:8000
+- API docs: http://localhost:8000/api/docs/
+- Health: http://localhost:8000/health/
 
-Compose injects env for services (no `backend/.env` required). Backend only runs migrate + seed + initial fake collect. Celery/beat skip bootstrap (`RUN_BOOTSTRAP=0`).
+Defaults:
+- `PROVIDER_MODE=fake` for reliable demos
+- `PROVIDER_USE_PLAYWRIGHT=False` for clean first boot
 
-> Default `PROVIDER_MODE=fake` for reliable demos. For live providers: set `PROVIDER_MODE=hybrid`, `PROVIDER_USE_PLAYWRIGHT=True`, install Chromium in the image (`playwright install --with-deps chromium`), and lower `PROVIDER_MAX_WORKERS` (2–3) so concurrent browser launches stay stable.
+Windows note: if Docker fails with `invalid file request Dockerfile` under OneDrive, move/clone the repo to a non-OneDrive path (reparse points break Docker builds).
 
-> **Windows / OneDrive gotcha:** if `docker compose up --build` fails with
-> `invalid file request Dockerfile`, the repo is inside a OneDrive folder whose
-> files are cloud "reparse points" Docker can't read. Move/clone the project to a
-> plain local path (e.g. `C:\dev\pricepulse`) and rebuild.
+## Environment Variables
 
----
+Backend: see `backend/.env.example`  
+Frontend:
+- `VITE_API_URL` (default `http://localhost:8000/api/v1`)
+- `VITE_API_DOCS_URL` (optional; used for footer link)
 
-## Local Development
+## Local Setup (No Docker)
 
+Backend:
 ```bash
-# Infra
-docker compose up -d postgres redis
-
-# Backend
 cd backend
 cp .env.example .env
 pip install -r requirements.txt
-# Optional live scrapers:
-# playwright install chromium
 python manage.py migrate
 python manage.py seed_data
-python manage.py collect_prices
 python manage.py runserver
+```
 
-# Workers (optional)
-celery -A config worker -l info
-celery -A config beat -l info
-
-# Frontend
+Frontend:
+```bash
 cd frontend1/frontend
-cp .env.example .env   # VITE_API_URL=http://localhost:8000/api/v1
 npm install
 npm run dev
 ```
 
----
+## Deployment (Reference)
 
-## Environment Variables
+See:
+- `docs/Deployment.md`
+- `docs/Architecture.md`
+- `docs/ProviderArchitecture.md`
 
-See `backend/.env.example`. Highlights:
+## API Endpoints (Core)
 
-| Variable | Purpose |
-|----------|---------|
-| `SECRET_KEY` | Django signing key (required real value when `DEBUG=False`) |
-| `PROVIDER_MODE` | `fake` \| `hybrid` \| `live` |
-| `PROVIDER_USE_PLAYWRIGHT` | Enable browser JSON capture |
-| `REDIS_CACHE_URL` | Shared cache for rate limits / provider responses |
-| `QUICKCOMMERCE_API_KEY` | Optional paid aggregator |
-| `EMAIL_*` | SMTP for real alert delivery |
+- `GET /api/v1/products/` (search + pagination)
+- `GET /api/v1/products/<id>/`
+- `GET /api/v1/products/<id>/prices/` (preferred comparison shape)
+- `GET /api/v1/products/<id>/history/`
+- `GET /api/v1/products/<id>/stats/`
+- `GET /api/v1/analytics/summary/`
+- `POST /api/v1/alerts/` (guest email required; authenticated uses account email)
 
-Never put API keys in frontend env vars.
+## Screenshots
 
----
+Add screenshots under `docs/screenshots/`:
+- `home.png`
+- `products.png`
+- `detail.png`
+- `dashboard.png`
+- `analytics.png`
+- `login.png`
 
-## API Documentation
+## Design Decisions
 
-Interactive OpenAPI UI: [http://localhost:8000/api/docs/](http://localhost:8000/api/docs/)
+- Hybrid mode exists to keep demos stable under anti-bot restrictions.
+- Provider normalization is centralized to reduce drift and make new providers easy to add.
+- DB-first search avoids blocking users on slow provider calls while keeping data fresh.
 
-Core routes:
+## Scaling Strategy (What changes at 100k users)
 
-| Method | Path | Notes |
-|--------|------|-------|
-| GET | `/api/v1/products/` | Search + pagination (DB-first; `?search=` triggers async stale refresh) |
-| GET | `/api/v1/products/{id}/` | Detail |
-| GET | `/api/v1/prices/product/{id}/` | Current store prices (price, MRP, discount %, ETA, logo, URL) |
-| GET | `/api/v1/products/{id}/history/` | History |
-| GET | `/api/v1/analytics/summary/` | Dashboard aggregates |
-| POST | `/api/v1/alerts/` | Create alert (guest email required) |
-| GET | `/health/` | DB + Redis |
-
----
-
-## Demo Instructions
-
-1. `docker compose up --build`
-2. Open http://localhost:5173/login → **Continue as guest**
-3. Browse Home → Products → open **Amul Butter 500g**
-4. Compare store prices, view history chart, set an alert (email required)
-5. Check Dashboard / Analytics for drops and cheapest picks
-6. (Optional) Register an account and use Profile
-
----
-
-## Future Improvements
-
-- Authenticated Instamart/BigBasket sessions (cookies/device tokens) for higher live hit rates
-- Playwright browser pool for faster, safer concurrent hybrid collect
-- Per-user cloud wishlist sync
-- Production nginx multi-stage frontend image
-- Stronger barcode GTINs + unit normalization
-- Database-backed Celery beat admin schedules
-
----
-
-## Challenges Solved
-
-- Quick-commerce APIs are not public; reverse-engineered endpoints are WAF-guarded
-- Playwright JSON interception vs brittle HTML scrape
-- Catalog ↔ provider matching (name, brand, unit, barcode)
-- Keeping demos stable with FakeProvider when live paths fail
-- Docker boot races (migrate/seed once on backend only)
-- JWT refresh queue without request hangs
-
----
-
-## Why this project stands out
-
-- End-to-end product, not a CRUD tutorial: providers → collector → history → alerts → charts
-- Honest fallbacks instead of fake “integrations”
-- Portfolio-ready UI (green grocery aesthetic, skeletons, empty states, guest mode)
-- Ops story: Compose, Celery, Redis cache, health checks, OpenAPI
-
----
-
-## Deployment
-
-- Prefer `DEBUG=False`, strong `SECRET_KEY`, gunicorn (Dockerfile CMD), managed Postgres/Redis
-- Serve frontend via static CDN/nginx (`npm run build`) with `VITE_API_URL` baked at build time
-- Put docs (`/api/docs/`) behind auth or disable in production
-- Do not run Playwright scrapers against production ToS without legal review — use aggregators or official APIs when available
-
----
+Blockers / next steps:
+- Replace Playwright scraping with official APIs/aggregators wherever possible.
+- Add provider job queues and a browser pool to control concurrency.
+- Add retention policies for history (or move to time-series storage).
+- Add observability (Sentry, structured logs, metrics) and per-endpoint latency budgets.
+- Cache hot product lists and analytics aggregates; precompute rollups.
 
 ## License
 
-MIT — use freely for portfolio / learning. Grocery brand names and logos belong to their respective owners and are used for demonstration only.
+MIT. Store names and logos are used for demonstration only.

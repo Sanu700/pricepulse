@@ -4,6 +4,7 @@ import Navbar from "../components/layout/Navbar";
 
 function MainLayout() {
   const location = useLocation();
+  const apiDocsUrl = import.meta.env.VITE_API_DOCS_URL;
 
   return (
     <div className="min-h-screen bg-canvas">
@@ -36,7 +37,7 @@ function MainLayout() {
             <div>
               <p className="font-semibold text-ink">PricePulse</p>
               <p className="mt-1 text-sm text-muted">
-                Compare Blinkit, Zepto & Instamart prices in one place.
+                Compare grocery prices across Blinkit, Zepto, Instamart, and BigBasket.
               </p>
             </div>
             <nav className="flex flex-wrap gap-4 text-sm font-medium text-muted">
@@ -49,19 +50,21 @@ function MainLayout() {
               <Link to="/dashboard" className="hover:text-primary">
                 Dashboard
               </Link>
-              <a
-                href="http://localhost:8000/api/docs/"
-                target="_blank"
-                rel="noreferrer"
-                className="hover:text-primary"
-              >
-                API Docs
-              </a>
+              {apiDocsUrl && (
+                <a
+                  href={apiDocsUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-primary"
+                >
+                  API Docs
+                </a>
+              )}
             </nav>
           </div>
           <p className="text-xs text-muted">
-            Portfolio demo · Live provider prices require Playwright; Docker boots in
-            FakeProvider mode by default.
+            Live provider capture is optional and region-dependent; hybrid mode falls back
+            to deterministic catalog data when anti-bot protections block access.
           </p>
         </div>
       </footer>

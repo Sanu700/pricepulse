@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { keepPreviousData } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -21,10 +21,6 @@ function Products() {
     { placeholderData: keepPreviousData }
   );
 
-  useEffect(() => {
-    setDraft(searchParams.get("q") ?? "");
-  }, [searchParams]);
-
   const products = data ?? [];
 
   function commitSearch(q) {
@@ -38,7 +34,9 @@ function Products() {
     <div>
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight text-ink">Products</h1>
-        <p className="mt-1 text-muted">Compare prices across Blinkit, Zepto & Instamart.</p>
+        <p className="mt-1 text-muted">
+          Compare prices across Blinkit, Zepto, Instamart, and BigBasket.
+        </p>
       </div>
 
       <div className="mb-8 max-w-xl">

@@ -1,69 +1,55 @@
 name: CI
 
 on:
-  push:
-    branches: ["main", "master"]
   pull_request:
-    branches: ["main", "master"]
+  push:
+    branches: [ main ]
 
 jobs:
-  backend-check:
+  backend:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Python 3.13
-        uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
-
-      - name: Install OS dependencies
+      - name: Install backend deps
+        working-directory: backend
         run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential default-libmysqlclient-dev pkg-config libpq-dev
-
-      - name: Upgrade pip
-        run: python -m pip install --upgrade pip
-
-      - name: Install Python requirements
-        run: pip install -r backend/requirements.txt
-
-      - name: Pip dependency check
-        run: pip check
-
-      - name: Django system checks
-        run: python backend/manage.py check
-
-      - name: Verify critical imports
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Django checks
+        working-directory: backend
+        env:
+          DJANGO_SETTINGS_MODULE: config.test_settings
         run: |
-          python - <<'PY'
-          import importlib, sys
-          missing = []
-          for mod in ["django", "rest_framework", "celery", "psycopg", "redis", "gunicorn"]:
-              try:
-                  importlib.import_module(mod)
-              except Exception as e:
-                  print(f"IMPORT FAILED {mod}: {e}")
-                  missing.append(mod)
-          if missing:
-              print('Missing imports:', missing)
-              sys.exit(1)
-          print('All critical imports available')
-          PY
+          python manage.py check
+          python manage.py test apps
 
-      - name: Run basic smoke tests (health endpoint)
-        run: |
-          # ensure manage.py is importable and settings are configured
-          python - <<'PY'
-          import os, sys
-          sys.path.insert(0, 'backend')
-          try:
-              import django
-              from django.core.management import call_command
-              print('Django import OK')
-          except Exception as e:
-              print('Django import failed', e)
-              raise
-          PY
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend1/frontend/package-lock.json
+      - name: Install frontend deps
+        working-directory: frontend1/frontend
+        run: npm ci
+      - name: Lint
+        working-directory: frontend1/frontend
+        run: npm run lint
+      - name: Build
+        working-directory: frontend1/frontend
+        env:
+          VITE_API_URL: http://localhost:8000/api/v1
+        run: npm run build
+
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build compose images
+        run: docker compose build

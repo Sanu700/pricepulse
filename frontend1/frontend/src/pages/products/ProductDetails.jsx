@@ -256,7 +256,7 @@ function ProductDetails() {
               <tbody>
                 {currentPrices.map((row, index) => (
                   <tr
-                    key={`${row.store}-${index}`}
+                    key={row.store}
                     className={`border-t border-line ${
                       index === 0 ? "bg-primary-soft/40" : "bg-surface"
                     }`}

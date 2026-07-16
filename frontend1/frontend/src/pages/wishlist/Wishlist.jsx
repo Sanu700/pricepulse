@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Bell, Trash2 } from "lucide-react";
@@ -14,6 +14,23 @@ function AlertModal({ product, onClose }) {
   );
   const [email, setEmail] = useState("");
   const [saving, setSaving] = useState(false);
+  const emailRef = useRef(null);
+  const lastActiveRef = useRef(null);
+
+  useEffect(() => {
+    lastActiveRef.current = document.activeElement;
+    emailRef.current?.focus();
+    function onKeyDown(event) {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      lastActiveRef.current?.focus?.();
+    };
+  }, [onClose]);
 
   async function save() {
     if (!threshold) {
@@ -53,6 +70,7 @@ function AlertModal({ product, onClose }) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="alert-modal-title"
+        aria-describedby="alert-modal-description"
         initial={{ opacity: 0, scale: 0.96, y: 8 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96 }}
@@ -65,7 +83,9 @@ function AlertModal({ product, onClose }) {
           </span>
           <div>
             <h3 id="alert-modal-title" className="font-semibold text-ink">Set a price alert</h3>
-            <p className="text-sm text-muted">{product.name}</p>
+            <p id="alert-modal-description" className="text-sm text-muted">
+              Get notified when {product.name} drops below your target price.
+            </p>
           </div>
         </div>
 
@@ -80,6 +100,7 @@ function AlertModal({ product, onClose }) {
           />
         </div>
         <input
+          ref={emailRef}
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}

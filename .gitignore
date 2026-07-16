@@ -1,0 +1,32 @@
+# Workspace
+node_modules/
+dist/
+coverage/
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+*.sqlite3
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Backend runtime
+backend/media/
+backend/staticfiles/
+backend/test_db.sqlite3
+
+# Frontend runtime
+frontend1/frontend/node_modules/
+frontend1/frontend/dist/
+
+# OS
+.DS_Store
+Thumbs.db

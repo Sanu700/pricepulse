@@ -211,14 +211,14 @@ class ProductStatsAPIView(APIView):
 
         # Last change within the same store (avoid cross-store false deltas)
         last_change = None
-        for store_id in (
-            history.order_by("-recorded_at")
-            .values_list("store_id", flat=True)
-            .distinct()[:5]
-        ):
-            pair = list(history.filter(store_id=store_id).order_by("-recorded_at")[:2])
-            if len(pair) == 2:
-                newest, previous = pair
+        recent_rows = list(history.order_by("-recorded_at")[:20])
+        pairs_by_store = {}
+        for row in recent_rows:
+            bucket = pairs_by_store.setdefault(row.store_id, [])
+            if len(bucket) < 2:
+                bucket.append(row)
+            if len(bucket) == 2:
+                newest, previous = bucket
                 last_change = {
                     "from": previous.price,
                     "to": newest.price,

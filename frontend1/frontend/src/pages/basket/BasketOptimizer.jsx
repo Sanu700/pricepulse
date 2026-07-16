@@ -4,8 +4,9 @@ import { ShoppingBasket, Check, Trophy } from "lucide-react";
 import { useProducts } from "../../hooks/useProducts";
 import Skeleton from "../../components/common/Skeleton";
 import EmptyState from "../../components/common/EmptyState";
+import ErrorState from "../../components/common/ErrorState";
 
-const STORES = ["Blinkit", "Zepto", "Instamart"];
+const STORES = ["Blinkit", "Zepto", "Instamart", "BigBasket"];
 
 function estimatePrice(product, store) {
   // Prefer real lowest/highest when available; otherwise deterministic estimate
@@ -21,8 +22,8 @@ function estimatePrice(product, store) {
 }
 
 function BasketOptimizer() {
-  const { data, isLoading } = useProducts();
-  const products = data ?? [];
+  const { data, isLoading, error } = useProducts();
+  const products = useMemo(() => data ?? [], [data]);
   const [selected, setSelected] = useState([]);
 
   const toggle = (id) =>
@@ -57,6 +58,11 @@ function BasketOptimizer() {
                 <Skeleton key={i} className="h-14" />
               ))}
             </div>
+          ) : error ? (
+            <ErrorState
+              title="Basket data unavailable"
+              description="We couldn't load products to estimate basket totals."
+            />
           ) : products.length === 0 ? (
             <EmptyState
               icon={ShoppingBasket}
