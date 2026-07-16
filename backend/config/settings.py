@@ -5,6 +5,8 @@ Django settings for PricePulse.
 from pathlib import Path
 from datetime import timedelta
 import os
+
+import dj_database_url
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -114,17 +116,19 @@ SPECTACULAR_SETTINGS = {
 WSGI_APPLICATION = "config.wsgi.application"
 AUTH_USER_MODEL = "accounts.User"
 
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("DB_NAME", "pricepulse"),
-        "USER": os.getenv("DB_USER", "postgres"),
-        "PASSWORD": os.getenv("DB_PASSWORD", "postgres"),
-        "HOST": os.getenv("DB_HOST", "localhost"),
-        "PORT": os.getenv("DB_PORT", "5432"),
-    }
+    "default": dj_database_url.config(
+        default=os.getenv(
+            "DATABASE_URL",
+            "postgresql://postgres:postgres@localhost:5432/pricepulse",
+        ),
+        conn_max_age=600,
+        ssl_require=not DEBUG,
+    )
 }
 
+import dj_database_url
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
@@ -160,8 +164,19 @@ CORS_ALLOW_CREDENTIALS = os.getenv("CORS_ALLOW_CREDENTIALS", "True").lower() in 
     "yes",
 )
 
-CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://redis:6379/0")
-CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://redis:6379/0")
+# ==========================================================
+# Redis / Celery
+# ==========================================================
+
+# ==========================================================
+# Redis / Celery
+# ==========================================================
+
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
+
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
+
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
@@ -198,19 +213,17 @@ QUICKCOMMERCE_API_KEY = os.getenv("QUICKCOMMERCE_API_KEY", "")
 PARSE_API_KEY = os.getenv("PARSE_API_KEY", "")
 FOODSPARK_API_KEY = os.getenv("FOODSPARK_API_KEY", "")
 
-REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
-REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
+USE_REDIS_CACHE = os.getenv("USE_REDIS_CACHE", "True").lower() in (
+    "1",
+    "true",
+    "yes",
+)
 
-# Prefer Redis when available so web + celery share provider cache / rate limits.
-_use_redis_cache = os.getenv("USE_REDIS_CACHE", "True").lower() in ("1", "true", "yes")
-if _use_redis_cache:
+if USE_REDIS_CACHE:
     CACHES = {
         "default": {
             "BACKEND": "django.core.cache.backends.redis.RedisCache",
-            "LOCATION": os.getenv(
-                "REDIS_CACHE_URL",
-                f"redis://{REDIS_HOST}:{REDIS_PORT}/1",
-            ),
+            "LOCATION": REDIS_URL,
             "KEY_PREFIX": "pricepulse",
             "TIMEOUT": 300,
         }
