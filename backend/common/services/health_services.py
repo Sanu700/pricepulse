@@ -1,12 +1,9 @@
-from urllib.parse import urlparse
-
 from django.conf import settings
 from django.db import connection
 from redis import Redis
 
 
 class HealthService:
-
     @staticmethod
     def check():
         status = {
@@ -15,6 +12,9 @@ class HealthService:
             "redis": "connected",
         }
 
+        # -----------------------------
+        # Database Health Check
+        # -----------------------------
         try:
             with connection.cursor() as cursor:
                 cursor.execute("SELECT 1")
@@ -23,26 +23,24 @@ class HealthService:
             status["status"] = "unhealthy"
             status["database"] = "disconnected"
 
+        # -----------------------------
+        # Redis Health Check
+        # -----------------------------
         try:
-            host = getattr(settings, "REDIS_HOST", "localhost")
-            port = getattr(settings, "REDIS_PORT", 6379)
+            redis_url = getattr(settings, "REDIS_URL", "")
 
-            # Prefer broker URL host when provided
-            broker = getattr(settings, "CELERY_BROKER_URL", "") or ""
-            if broker.startswith("redis://"):
-                parsed = urlparse(broker)
-                host = parsed.hostname or host
-                port = parsed.port or port
+            if redis_url:
+                redis_client = Redis.from_url(
+                    redis_url,
+                    decode_responses=True,
+                    socket_connect_timeout=2,
+                )
+                redis_client.ping()
+            else:
+                status["redis"] = "not configured"
 
-            redis_client = Redis(
-                host=host,
-                port=port,
-                decode_responses=True,
-                socket_connect_timeout=2,
-            )
-            redis_client.ping()
         except Exception:
-            status["status"] = "unhealthy"
+            # Redis is optional for app availability
             status["redis"] = "disconnected"
 
         return status
